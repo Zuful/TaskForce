@@ -15,10 +15,10 @@ include_once(dirname(__FILE__) . "/class/model/ModelTaskForce.php");
 include_once(dirname(__FILE__) . "/class/controller/Controller.php");
 
 use Model\ModelUser;
-use Controller\MainController;
+use Controller\Controller;
 
 $user = new ModelUser();
-$ctrl = new MainController($user);
+$ctrl = new Controller($user);
 ?>
 <!doctype html>
 <html lang="fr">

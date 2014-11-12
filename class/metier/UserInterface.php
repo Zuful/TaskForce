@@ -27,6 +27,12 @@ class UserInterface {
     private $_home;
 
     private $_indexPage;
+
+    private $_createTaskPage;
+    private $_seeTaskPage;
+    private $_editTaskPage;
+    private $_doneTaskPage;
+
     private $_signInPage;
     private $_signUpPage;
     private $_signOutPage;
@@ -59,12 +65,26 @@ class UserInterface {
 
         //********************************************************Variables*****************************************************************
         $this->_indexPage = "index.php";
+
+        $this->_createTaskPage = "createTask.php";
+        $this->_seeTaskPage = "seeTask.php";
+        $this->_editTaskPage = "editTask.php";
+        $this->_doneTaskPage = "doneTask.php";
+
         $this->_signInPage = "signIn.php";
         $this->_signUpPage = "signUp.php";
         $this->_signOutPage = "signOut.php";
     }
 
     public function getHead(){
+        return $this->_head;
+    }
+
+    public function getTaskHead(){
+        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.css"));
+        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.theme.css"));
+        $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.min.js"));
+
         return $this->_head;
     }
 
@@ -96,20 +116,35 @@ class UserInterface {
     }
 
     public function  getCollapsibleTask(ModelTask $task){
-        $btnSee = $this->_html->newButton(array("data-icon" => "eye"), "Voir");
-        $btnEdit = $this->_html->newButton(array("data-icon" => "edit"), "Editer");
-        $btnDone = $this->_html->newButton(array("data-icon" => "check"), "Marquer comme fait");
+        $seeSubmit = $this->_html->newInput(array("type" => "submit", "data-icon" => "eye", "value" => "Voir"));
+        $editSubmit = $this->_html->newInput(array("type" => "submit", "data-icon" => "edit", "value" => "Editer"));
+        $doneSubmit = $this->_html->newInput(array("type" => "submit", "data-icon" => "check", "value" => "Marquer comme fait"));
 
-        $linkSee = $this->_html->newA(array("href" => "#see_task?taskId=" . $task->id, "data-transition" => "turn"), $btnSee);
-        $linkEdit = $this->_html->newA(array("href" => "#edit_task?taskId=" . $task->id, "data-transition" => "turn"), $btnEdit);
-        $linkDone = $this->_html->newA(array("href" => "#task_done?taskId=" . $task->id, "data-transition" => "turn"), $btnDone);
+        $see = $this->_html->newForm(array("action" => $this->_seeTaskPage . "?taskId=" . $task->id,
+                                           "method" => "post",
+                                           "id" => "see" . $task->id,
+                                           "data-transition" => "turn",
+                                           "data-direction" => "reverse"),
+                                     $seeSubmit);
+        $edit = $this->_html->newForm(array("action" => $this->_editTaskPage . "?taskId=" . $task->id,
+                                            "method" => "post",
+                                            "id" => "edit" . $task->id,
+                                            "data-transition" => "turn",
+                                            "data-direction" => "reverse"),
+                                      $editSubmit);
+        $done = $this->_html->newForm(array("action" => $this->_doneTaskPage . "?taskId=" . $task->id,
+                                            "method" => "post",
+                                            "id" => "done" . $task->id,
+                                            "data-transition" => "turn",
+                                            "data-direction" => "reverse"),
+                                      $doneSubmit);
 
         $name = $this->_html->newH(array(), 1, $task->name);
-        $basicInfos = "Date limite : " . $task->due_date ."<br>
+        $basicInfos = "Date limite : " . $this->_helper->datePickerToTime($task->due_date, true) ."<br>
                        Importance : " . $task->importance;
         $basicInfos = $this->_html->newP(array(), $basicInfos);
 
-        $content = $name . $basicInfos . $linkSee . $linkEdit . $linkDone;
+        $content = $name . $basicInfos . $see . $edit . $done;
 
         $formatedTask = $this->_html->newDiv(array("data-role" => "collapsible"), $content);
 
@@ -141,7 +176,9 @@ class UserInterface {
         return $signInPage;
     }
 
-    public function taskPage(ModelTask $task){
+    public function seeTaskPage($taskId){
+        $task = $this->_ajax->getTask($taskId);
+
         $name = $this->_html->newH(array(), 2,$task->name);
         $basicInfos = "Date limite : " . $task->due_date . "<br>
                        Importance : " . $task->importance;
@@ -159,10 +196,6 @@ class UserInterface {
     }
 
     public function createTaskPage(){
-        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.css"));
-        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.theme.css"));
-        $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.min.js"));
-
         $name = $this->_html->newInput(array("type" => "text","name" => "name"), "Nom : ");
         $description = $this->_html->newTextarea(array("name" => "description"), "Description : ");
 
@@ -189,10 +222,6 @@ class UserInterface {
     }
 
     public function editTaskPage($taskId){
-        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.css"));
-        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.theme.css"));
-        $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.min.js"));
-
         $task = $this->_ajax->getTask($taskId);
         $task->due_date = $this->_helper->datePickerToTime($task->due_date, true);
 
@@ -207,7 +236,7 @@ class UserInterface {
         $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
         $dueDate = $this->_html->newInput(array("type" => "text", "data-role" => "date", "value" => $task->due_date));
         $creationDate = $this->_html->newInput(array("type" => "hidden", "name" => "creation_date", "value" => time()));
-        $submit = $this->_html->newInput(array("type" => "submit", "value" => time()));
+        $submit = $this->_html->newInput(array("type" => "submit", "value" => "Editer"));
 
         $formContent = $name . $description . $selectImportance . $dueDate . $creationDate . $submit;
 
