@@ -29,4 +29,18 @@ class Helper {
         }
 
     }
+
+    public function datePickerToTime($time, $bool = false){
+        if($bool){
+            if(is_numeric($time)){
+                return date("d/m/Y", $time);
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+
+        }
+    }
 } 

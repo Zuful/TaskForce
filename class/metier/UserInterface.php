@@ -9,20 +9,24 @@
 namespace Metier;
 
 include_once(dirname(__FILE__) . "/../helper/Html.php");
+include_once(dirname(__FILE__) . "/../helper/Helper.php");
 include_once(dirname(__FILE__) . "/Ajax.php");
 
+use Helper\Helper;
 use Helper\Html;
 use Model\ModelTask;
 use Model\ModelUser;
 
 class UserInterface {
     private $_ajax;
+    private $_helper;
     private $_html;
     private $_head;
     private $_header;
     private $_footer;
     private $_home;
 
+    private $_indexPage;
     private $_signInPage;
     private $_signUpPage;
     private $_signOutPage;
@@ -30,6 +34,7 @@ class UserInterface {
     public function __CONSTRUCT(ModelUser $user){
         $this->_ajax = new Ajax($user);
         $this->_html = new Html();
+        $this->_helper = new Helper();
 
         //********************************************************Head*****************************************************************
         $this->_head .= $this->_html->newTitle("Home");
@@ -53,7 +58,8 @@ class UserInterface {
         $this->_footer = $this->_html->newDiv(array("data-role" => "footer"), "<h2>&copy; Yamani ADAME 2014</h2>");
 
         //********************************************************Variables*****************************************************************
-        $this->_signInPage = "index.php";
+        $this->_indexPage = "index.php";
+        $this->_signInPage = "signIn.php";
         $this->_signUpPage = "signUp.php";
         $this->_signOutPage = "signOut.php";
     }
@@ -90,8 +96,6 @@ class UserInterface {
     }
 
     public function  getCollapsibleTask(ModelTask $task){
-        $this->_ajax->getTasks();
-
         $btnSee = $this->_html->newButton(array("data-icon" => "eye"), "Voir");
         $btnEdit = $this->_html->newButton(array("data-icon" => "edit"), "Editer");
         $btnDone = $this->_html->newButton(array("data-icon" => "check"), "Marquer comme fait");
@@ -124,7 +128,7 @@ class UserInterface {
         $fieldContain = $this->_html->newDiv(array("data-role" => "fieldcontain"), $formContent);
         $fieldset = $this->_html->newFieldset(array(), $fieldContain);
 
-        $formProps = array("action" => $this->_signInPage, "method" => "post", "id" => "connexion", "data-transition" => "turn", "data-direction" => "reverse");
+        $formProps = array("action" => $this->_indexPage, "method" => "post", "id" => "connexion", "data-transition" => "turn", "data-direction" => "reverse");
         $signInForm = $this->_html->newForm($formProps, $fieldset);
         $title = $this->_html->newH(array(), 1, "Connexion");
 
@@ -149,7 +153,71 @@ class UserInterface {
         $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $uiContent);
 
         $pageContent = $this->_header . $uiContent . $this->_footer;
-        $seeTaskPage = $this->_html->newDiv(array("data-role" => "page"), $pageContent);
+        $taskPage = $this->_html->newDiv(array("data-role" => "page"), $pageContent);
 
+        return $taskPage;
+    }
+
+    public function createTaskPage(){
+        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.css"));
+        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.theme.css"));
+        $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.min.js"));
+
+        $name = $this->_html->newInput(array("type" => "text","name" => "name"), "Nom : ");
+        $description = $this->_html->newTextarea(array("name" => "description"), "Description : ");
+
+        $optionBasse = $this->_html->newFormOption(array(), "Basse");
+        $optionMoyenne = $this->_html->newFormOption(array(), "Moyenne");
+        $optionHaute = $this->_html->newFormOption(array(), "Haute");
+        $choiceImportance = $optionBasse . $optionMoyenne . $optionHaute;
+
+        $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
+        $dueDate = $this->_html->newInput(array("type" => "text", "data-role" => "date"));
+        $creationDate = $this->_html->newInput(array("type" => "hidden", "name" => "creation_date", "value" => time()));
+        $submit = $this->_html->newInput(array("type" => "submit", "value" => time()));
+
+        $formContent = $name . $description . $selectImportance . $dueDate . $creationDate . $submit;
+
+        $formProps = array("action" => $this->_indexPage . "?action=createTask", "method" => "post", "id" => "createTask", "data-transition" => "turn");
+        $formCreate = $this->_html->newForm($formProps, $formContent);
+
+        $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $formCreate);
+        $pageContent = $this->_header . $uiContent . $this->_footer;
+        $createTaskPage = $this->_html->newDiv(array("data-role" => "page"), $pageContent);
+
+        return $createTaskPage;
+    }
+
+    public function editTaskPage($taskId){
+        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.css"));
+        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.theme.css"));
+        $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.min.js"));
+
+        $task = $this->_ajax->getTask($taskId);
+        $task->due_date = $this->_helper->datePickerToTime($task->due_date, true);
+
+        $name = $this->_html->newInput(array("type" => "text", "name" => "name", "value" => $task->name), "Nom : ");
+        $description = $this->_html->newTextarea(array("name" => "description", "value" => $task->description), "Description : ");
+
+        $optionBasse = $this->_html->newFormOption(array(), "Basse");
+        $optionMoyenne = $this->_html->newFormOption(array(), "Moyenne");
+        $optionHaute = $this->_html->newFormOption(array(), "Haute");
+        $choiceImportance = $optionBasse . $optionMoyenne . $optionHaute;
+
+        $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
+        $dueDate = $this->_html->newInput(array("type" => "text", "data-role" => "date", "value" => $task->due_date));
+        $creationDate = $this->_html->newInput(array("type" => "hidden", "name" => "creation_date", "value" => time()));
+        $submit = $this->_html->newInput(array("type" => "submit", "value" => time()));
+
+        $formContent = $name . $description . $selectImportance . $dueDate . $creationDate . $submit;
+
+        $formProps = array("action" => $this->_indexPage . "?action=updateTask", "method" => "post", "id" => "createTask", "data-transition" => "turn");
+        $formCreate = $this->_html->newForm($formProps, $formContent);
+
+        $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $formCreate);
+        $pageContent = $this->_header . $uiContent . $this->_footer;
+        $createTaskPage = $this->_html->newDiv(array("data-role" => "page"), $pageContent);
+
+        return $createTaskPage;
     }
 } 
