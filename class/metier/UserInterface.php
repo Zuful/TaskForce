@@ -27,6 +27,8 @@ class UserInterface {
     private $_home;
 
     private $_indexPage;
+    private $_contactsPage;
+    private $_settingsPage;
 
     private $_createTaskPage;
     private $_seeTaskPage;
@@ -50,9 +52,9 @@ class UserInterface {
         $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.mobile-1.4.5.min.js"));
 
         //********************************************************Header*****************************************************************
-        $linkHome = $this->_html->newA(array("href" => "#home", "data-transition" => "turn", "data-icon" => "home"), "Home");
-        $linkAccount = $this->_html->newA(array("href" => "#users", "data-transition" => "turn", "data-icon" => "user"), "Utilisateurs");
-        $linkSettings = $this->_html->newA(array("href" => "#settings", "data-transition" => "turn", "data-icon" => "gear"), "Settings");
+        $linkHome = $this->_html->newA(array("href" => "index.php", "data-transition" => "turn", "data-icon" => "home"), "Home");
+        $linkAccount = $this->_html->newA(array("href" => "contacts.php", "data-transition" => "turn", "data-direction" => "reverse","data-icon" => "user"), "Contacts");
+        $linkSettings = $this->_html->newA(array("href" => "settings.php", "data-transition" => "turn", "data-direction" => "reverse","data-icon" => "gear"), "Settings");
 
         $list = $this->_html->newLi(array(), array($linkHome, $linkAccount, $linkSettings));
         $nav = $this->_html->newUl(array(), $list);
@@ -65,6 +67,8 @@ class UserInterface {
 
         //********************************************************Variables*****************************************************************
         $this->_indexPage = "index.php";
+        $this->_contactsPage = "contacts.php";
+        $this->_settingsPage = "settings.php";
 
         $this->_createTaskPage = "createTask.php";
         $this->_seeTaskPage = "seeTask.php";
@@ -149,6 +153,34 @@ class UserInterface {
         $formatedTask = $this->_html->newDiv(array("data-role" => "collapsible"), $content);
 
         return $formatedTask;
+    }
+
+    public function getTaskList(){
+        $tasks = $this->_ajax->getTasks();
+        $list = null;
+
+        foreach($tasks as $task){
+            $img = null;
+            $title = $this->_html->newH(array(), 2, $task->name);
+            $basicInfosContent = "Importance : " . $task->importance ."<br> Date limite : " . $task->due_date;
+            $basicInfos = $this->_html->newP(array(), $basicInfosContent);
+            $linkContent = $img . $title . $basicInfos;
+            $linkSeeTask = $this->_html->newA(array("href" => "seeTask?taskId=" . $task->id, "data-transition" => "turn", "data-direction" => "reverse"), $linkContent);
+
+//<a href="#purchase" data-rel="popup" data-position-to="window" data-transition="pop">Purchase album</a>
+
+            $linkDeleteTask = $this->_html->newA(array("href" => "deleteTask?taskId=" . $task->id,
+                                                       "data-transition" => "turn",
+                                                       "data-direction" => "reverse"),
+                                                       "Editer la tache");
+            $linkEditTask = $this->_html->newA(array("href" => "doneTask?taskId=" . $task->id, "data-transition" => "turn", "data-direction" => "reverse"), "Editer la tache");
+            $linkDoneTask = $this->_html->newA(array("href" => "doneTask?taskId=" . $task->id, "data-transition" => "turn", "data-direction" => "reverse"), "Marquer comme faite");
+
+
+            $liContent = ;
+            $li = ;
+            $list .= ;
+        }
     }
 
     public function signInPage(){
@@ -248,5 +280,23 @@ class UserInterface {
         $createTaskPage = $this->_html->newDiv(array("data-role" => "page"), $pageContent);
 
         return $createTaskPage;
+    }
+
+    public function contactsPage(){
+        $title = $this->_html->newH(array(), 1, "Contacts");
+
+        $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $title);
+        $contactsPage = $this->_header . $uiContent . $this->_footer;
+
+        return $contactsPage;
+    }
+
+    public function settingPage(){
+        $title = $this->_html->newH(array(), 1, "Parametres");
+
+        $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $title);
+        $settingsPage = $this->_header . $uiContent . $this->_footer;
+
+        return $settingsPage;
     }
 } 

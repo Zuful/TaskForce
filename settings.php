@@ -1,14 +1,10 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Yam's
- * Date: 18/10/14
- * Time: 01:10
+ * User: Yamani
+ * Date: 13/11/2014
+ * Time: 09:02
  */
-//TODO : Rendre actif les liens du menu dans le header
-//TODO : Rendre fonctionnelle la création d'une tâche
-//TODO : Rendre fonctionnelle la modification d'une tâche
-//TODO : Rendre fonctionnelle la validation d'une tâche
 session_start();
 include_once(dirname(__FILE__) . "/class/controller/Controller.php");
 
@@ -28,7 +24,7 @@ if(isset($_GET["action"])){
 </head>
 <body>
 <?php
-    echo $ctrl->getUi()->homePage();
+echo $ctrl->getUi()->settingPage();
 ?>
 </body>
 </html>
