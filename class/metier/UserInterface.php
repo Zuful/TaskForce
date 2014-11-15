@@ -34,6 +34,7 @@ class UserInterface {
     private $_seeTaskPage;
     private $_editTaskPage;
     private $_doneTaskPage;
+    private $_deleteTask;
 
     private $_signInPage;
     private $_signUpPage;
@@ -74,6 +75,7 @@ class UserInterface {
         $this->_seeTaskPage = "seeTask.php";
         $this->_editTaskPage = "editTask.php";
         $this->_doneTaskPage = "doneTask.php";
+        $this->_deleteTask = "deleteTask.php";
 
         $this->_signInPage = "signIn.php";
         $this->_signUpPage = "signUp.php";
@@ -94,16 +96,11 @@ class UserInterface {
 
     public function homePage(){
         if(is_null($this->_home)){
-            $tasks = $this->_ajax->getTasks();
-            $collapsibleTasks = null;
-
-            foreach($tasks as $task){
-                $collapsibleTasks .= $this->getCollapsibleTask($task);
-            }
+            $taskList = $this->getTaskList();
 
             $btnNewTask = $this->_html->newButton(array("data-icon" => "plus"), "Nouvelle tache");
-            $linkNewTask = $this->_html->newA(array("href" => "#new_task"), $btnNewTask);
-            $ui = $linkNewTask . $collapsibleTasks;
+            $linkNewTask = $this->_html->newA(array("href" => $this->_createTaskPage), $btnNewTask);
+            $ui = $linkNewTask . $taskList;
 
             $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $ui);
 
@@ -116,48 +113,11 @@ class UserInterface {
         else{
             return $this->_home;
         }
-
-    }
-
-    public function  getCollapsibleTask(ModelTask $task){
-        $seeSubmit = $this->_html->newInput(array("type" => "submit", "data-icon" => "eye", "value" => "Voir"));
-        $editSubmit = $this->_html->newInput(array("type" => "submit", "data-icon" => "edit", "value" => "Editer"));
-        $doneSubmit = $this->_html->newInput(array("type" => "submit", "data-icon" => "check", "value" => "Marquer comme fait"));
-
-        $see = $this->_html->newForm(array("action" => $this->_seeTaskPage . "?taskId=" . $task->id,
-                                           "method" => "post",
-                                           "id" => "see" . $task->id,
-                                           "data-transition" => "turn",
-                                           "data-direction" => "reverse"),
-                                     $seeSubmit);
-        $edit = $this->_html->newForm(array("action" => $this->_editTaskPage . "?taskId=" . $task->id,
-                                            "method" => "post",
-                                            "id" => "edit" . $task->id,
-                                            "data-transition" => "turn",
-                                            "data-direction" => "reverse"),
-                                      $editSubmit);
-        $done = $this->_html->newForm(array("action" => $this->_doneTaskPage . "?taskId=" . $task->id,
-                                            "method" => "post",
-                                            "id" => "done" . $task->id,
-                                            "data-transition" => "turn",
-                                            "data-direction" => "reverse"),
-                                      $doneSubmit);
-
-        $name = $this->_html->newH(array(), 1, $task->name);
-        $basicInfos = "Date limite : " . $this->_helper->datePickerToTime($task->due_date, true) ."<br>
-                       Importance : " . $task->importance;
-        $basicInfos = $this->_html->newP(array(), $basicInfos);
-
-        $content = $name . $basicInfos . $see . $edit . $done;
-
-        $formatedTask = $this->_html->newDiv(array("data-role" => "collapsible"), $content);
-
-        return $formatedTask;
     }
 
     public function getTaskList(){
         $tasks = $this->_ajax->getTasks();
-        $list = null;
+        $list = array();
 
         foreach($tasks as $task){
             $img = null;
@@ -165,22 +125,22 @@ class UserInterface {
             $basicInfosContent = "Importance : " . $task->importance ."<br> Date limite : " . $task->due_date;
             $basicInfos = $this->_html->newP(array(), $basicInfosContent);
             $linkContent = $img . $title . $basicInfos;
-            $linkSeeTask = $this->_html->newA(array("href" => "seeTask?taskId=" . $task->id, "data-transition" => "turn", "data-direction" => "reverse"), $linkContent);
 
-//<a href="#purchase" data-rel="popup" data-position-to="window" data-transition="pop">Purchase album</a>
+            $linkSeeTask = $this->_html->newA(array("href" => $this->_seeTaskPage . "?taskId=" . $task->id,
+                                                    "data-transition" => "turn",
+                                                    "data-direction" => "reverse"),
+                                        $linkContent);
+            $linkDoneTask = $this->_html->newA(array("href" => $this->_doneTaskPage . "?taskId=" . $task->id, "data-split-icon" => "check"), "Marquer comme faite");
 
-            $linkDeleteTask = $this->_html->newA(array("href" => "deleteTask?taskId=" . $task->id,
-                                                       "data-transition" => "turn",
-                                                       "data-direction" => "reverse"),
-                                                       "Editer la tache");
-            $linkEditTask = $this->_html->newA(array("href" => "doneTask?taskId=" . $task->id, "data-transition" => "turn", "data-direction" => "reverse"), "Editer la tache");
-            $linkDoneTask = $this->_html->newA(array("href" => "doneTask?taskId=" . $task->id, "data-transition" => "turn", "data-direction" => "reverse"), "Marquer comme faite");
+            $liContent = $linkSeeTask . $linkDoneTask;
 
-
-            $liContent = ;
-            $li = ;
-            $list .= ;
+            $list[] =  $liContent;
         }
+
+        $lis = $this->_html->newLi(array(), $list);
+        $ul = $this->_html->newUl(array("data-role" => "listview", "data-split-icon" => "check", "data-inset" => "true"), $lis);
+
+        return $ul;
     }
 
     public function signInPage(){
@@ -239,7 +199,7 @@ class UserInterface {
         $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
         $dueDate = $this->_html->newInput(array("type" => "text", "data-role" => "date"));
         $creationDate = $this->_html->newInput(array("type" => "hidden", "name" => "creation_date", "value" => time()));
-        $submit = $this->_html->newInput(array("type" => "submit", "value" => time()));
+        $submit = $this->_html->newInput(array("type" => "submit", "value" => "Creer"));
 
         $formContent = $name . $description . $selectImportance . $dueDate . $creationDate . $submit;
 
