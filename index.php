@@ -16,6 +16,7 @@
 //TODO : Modifier la requête d'affichage pour n'afficher que les résultat dont le status est à 0
 //TODO : Ajouter une zone de recherche sur les listes
 //TODO : Implémenter le widget datepicker pour les choix des dates
+//TODO : Ajouter les fonctionalitées edit/delete/done sur le détail d'une tâche
 
 session_start();
 include_once(dirname(__FILE__) . "/class/controller/Controller.php");
