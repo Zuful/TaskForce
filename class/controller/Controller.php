@@ -59,11 +59,12 @@ class Controller {
 
                 //TODO : Put these sql operations in a transaction
                 if($this->_ajax->createTask($task)){
-                    if($this->_ajax->createUserAndTask($this->_user->id, $this->_ajax->getLastInsertId())){
+                    $idJustCreatedTask = $this->_ajax->getLastInsertId();
+                    if($this->_ajax->createUserAndTask($this->_user->id, $idJustCreatedTask)){
                         return true;
                     }
                     else{
-                        $this->_ajax->deleteTask($this->_ajax->getLastInsertId());
+                        $this->_ajax->deleteTask($idJustCreatedTask);
                         return false;
                     }
                 }
@@ -73,7 +74,7 @@ class Controller {
 
                 break;
 
-            case "updateTask":
+            case "editTask":
                 $task = new ModelTask();
                 $task->hydrate($_POST);
 
@@ -81,8 +82,24 @@ class Controller {
                 break;
 
             case "deleteTask":
-                $id = (isset($_GET["id"]))?$_GET["id"]:0;
+                $id = (isset($_POST["id"]))?$_POST["id"]:0;
                 $this->_ajax->deleteTask($id);
+                break;
+
+            case "doneTask":
+                if(isset($_GET["id"])){//$_GET is checked because it is also possible to realize this operation through a link
+                    $id = $_GET["id"];
+                }
+                elseif(isset($_POST["id"])){
+                    $id = $_POST["id"];
+                }
+                else{
+                    $id = 0;
+                }
+
+                $task = $this->_ajax->getTask($id);
+                $task->status = 1;
+                $this->_ajax->updateTask($task);
                 break;
 
             case "createUser":

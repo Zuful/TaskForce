@@ -5,18 +5,16 @@
  * Date: 18/10/14
  * Time: 01:10
  */
-//TODO : Créer le contenu de la page utilisateurs
-//TODO : Créer le contenu de la page paramètres
-//TODO : Rendre fonctionnelle la modification d'une tâche
-//TODO : Rendre fonctionnelle la suppression d'une tâche
-//TODO : Rendre fonctionnelle la validation d'une tâche
-//TODO : Organiser l'affichage des taches par ordre chronologique
-//TODO : Faire en sorte que l'on puisse créer plusieur tâche à la suite dans avoir les informations de la précédente dans le formulaire (js pour vider après création)
+//TODO : Créer le contenu de la page utilisateurs (Liste contacts, Ajouter contacts)
+//TODO : Créer le contenu de la page paramètres (Affichages par défaut)
+//TODO : Après suppression d'une tâche si on fait "précédent" renvoyer sur la page d'index (en gros si on trouve pas l'id de la tache)
+//TODO : Faire en sorte que l'on puisse créer plusieur tâche à la suite sans avoir les informations de la précédente dans le formulaire (js pour vider après création)
 //TODO : Ajouter une boite de dialogue qui apparait après création, modification ou suppression d'une tâche
-//TODO : Modifier la requête d'affichage pour n'afficher que les résultat dont le status est à 0
+//TODO : Ajouter une boite de confirmation qui apparait avant suppression d'une tâche
 //TODO : Ajouter une zone de recherche sur les listes
 //TODO : Implémenter le widget datepicker pour les choix des dates
-//TODO : Ajouter les fonctionalitées edit/delete/done sur le détail d'une tâche
+//TODO : Ajouter en clé étrangère l'id du créateur et du l'executeur dans la table "tasks",
+//TODO : Ajouter le filtrage à la récupération des taches (Ajax->getTasks(array $filters))
 
 session_start();
 include_once(dirname(__FILE__) . "/class/controller/Controller.php");
@@ -26,7 +24,11 @@ use Controller\Controller;
 $ctrl = new Controller();
 if(isset($_GET["action"])){
     if($ctrl->action($_GET["action"])){
+        header("Location : index.php");
         //Afficher un message de confirmation
+    }
+    else{
+
     }
 }
 ?>

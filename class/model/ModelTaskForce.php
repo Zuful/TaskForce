@@ -62,3 +62,12 @@ class ModelUserAndTask {
         return $this;
     }
 }
+
+class ModelDoubleChoiceBox{
+    public $idTag;
+    public $title;
+    public $mainMessage;
+    public $subMessage;
+    public $firstOption;
+    public $secondOption;
+}

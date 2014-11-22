@@ -40,12 +40,16 @@ class Ajax {
     /**
      * Returns the list of all of the tasks of the current user
      *
+     * @param Array $filters
      * @return ModelTask[]
      */
-    public function getTasks(){
+    public function getTasks(array $filters = null){
         $sql = "SELECT * FROM tasks AS T INNER JOIN users_and_tasks AS UAT
                 ON T.id = UAT.task_id
-                WHERE UAT.user_id = :user_id";
+                WHERE UAT.user_id = :user_id
+                AND status = 0
+                ORDER BY id DESC
+                LIMIT 20";
 
         $req = $this->_pdo->prepare($sql);
         $req->execute(array(":user_id" => $this->_user->id));
@@ -96,8 +100,24 @@ class Ajax {
     }
 
     public function deleteTask($id){
-        $this->_crud->setTable("tasks");
-        return $this->_crud->delete($id);
+        //TODO : Mettre ces requettes dans une transaction
+        $deleteUsersAndTask = $this->deleteUserAndTask($id);
+
+        if($deleteUsersAndTask){
+            $this->_crud->setTable("tasks");
+            $this->_crud->setIdFieldName("id");
+            $deleteTask = $this->_crud->delete($id);
+
+            if($deleteTask){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
     }
 
     public function createUserAndTask($userId, $taskId){
@@ -111,6 +131,7 @@ class Ajax {
 
     public function deleteUserAndTask($taskId){
         $this->_crud->setTable("users_and_tasks");
+        $this->_crud->setIdFieldName("task_id");
 
         return $this->_crud->delete($taskId);
     }

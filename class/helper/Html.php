@@ -155,7 +155,7 @@ class Html {
         return $form;
     }
 
-    public function newInput(array $props, $fieldset = null){
+    public function newFormInput(array $props, $fieldset = null){
         $properties = null;
 
         foreach($props as $propKey => $propVal){

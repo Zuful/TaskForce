@@ -14,6 +14,7 @@ class Crud {
     private $_defaultIdFieldName;
     private $_idFieldName;
     private $_elms;
+    private $_orderBy;
     private $_strFields;//Enumeration of the fields in which the informations will be inserted
     private $_strBindedFields;//Enumeration of the fields that will be binded with the array of values
     private $_arrayBindedValues;//Array to be passed in parameter in the execute PDO statement (binding)
@@ -34,11 +35,17 @@ class Crud {
     public function setIdFieldName($idFieldName){
         $this->_idFieldName = $idFieldName;
     }
+
     public function setElms(array $elms){
         $this->_elms = $elms;
     }
+
     public function setLimit($limit){
         $this->_limit = $limit;
+    }
+
+    public function setOrderBy($orderBy){
+        $this->_orderBy = $orderBy;
     }
     //****************************************************************************************C.R.U.D****************************************************************************************
     public function create(){
@@ -52,11 +59,14 @@ class Crud {
             return false;
         }
     }
+
     public function read(array $where = null){
         //TODO -- Renvoyer une exception si les attributs table ou elms ne sont pas initialisé
         $sql = "SELECT " . $this->_strSelect() . " FROM " . $this->_table;
         $sql = (!is_null($where))?$sql . " " . $this->_strWhere($where):$sql;
-        $sql = $sql . " " . $this->_limit;
+        $sql = $sql . " " /*. $this->_orderBy*/ . $this->_limit;
+
+
         $req = $this->_pdo->prepare($sql);
         if(is_array($where)){
             $req->execute(array_values($where));
@@ -87,6 +97,7 @@ class Crud {
     public function delete($id){
         if(!is_numeric($id)){return false;}//TODO -- Renvoyer une exception si l'id n'est pas un numérique
         $req = $this->_pdo->prepare("DELETE FROM " . $this->_table . " WHERE " . $this->_idFieldName ." = ?");
+
         if($req->execute(array($id))){
             return true;
         }
