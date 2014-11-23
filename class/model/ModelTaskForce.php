@@ -71,3 +71,8 @@ class ModelDoubleChoiceBox{
     public $firstOption;
     public $secondOption;
 }
+
+class ModelAjaxLoadFiles{
+    public $confirmDelete;
+    public $taskMenu;
+}

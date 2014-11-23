@@ -14,7 +14,7 @@ include_once(dirname(__FILE__) . "/Ajax.php");
 
 use Helper\Helper;
 use Helper\Html;
-use Model\ModelTask;
+use Model\ModelAjaxLoadFiles;
 use Model\ModelDoubleChoiceBox;
 use Model\ModelUser;
 
@@ -38,6 +38,8 @@ class UserInterface {
     private $_signInPage;
     private $_signUpPage;
     private $_signOutPage;
+
+    private $_ajaxLoadFiles;
 
     public function __CONSTRUCT(ModelUser $user){
         $this->_ajax = new Ajax($user);
@@ -86,9 +88,34 @@ class UserInterface {
     public function getTaskHead(){
         $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.css"));
         $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.theme.css"));
-        $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.min.js"));
+        $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.min.js"));//TODO : Chopper le js de datepicker
 
         return $this->_head;
+    }
+
+    /**
+     * @return ModelAjaxLoadFiles
+     */
+    private function _getAjaxLoadFiles(){
+        if(is_null($this->_ajaxLoadFiles)){
+            $this->_ajaxLoadFiles = new ModelAjaxLoadFiles();
+            return $this->_ajaxLoadFiles;
+        }
+        else{
+            return $this->_ajaxLoadFiles;
+        }
+    }
+
+    private function _getConfirmDelete(){
+        $ajaxLoadFiles = $this->_getAjaxLoadFiles();
+        if(is_null($ajaxLoadFiles->confirmDelete)){
+            $ajaxLoadFiles->confirmDelete = "ajax/confirmDelete.php";
+
+            return $ajaxLoadFiles->confirmDelete;
+        }
+        else{
+            return $ajaxLoadFiles->confirmDelete;
+        }
     }
 
     public function homePage(){
@@ -189,58 +216,33 @@ class UserInterface {
 
         $formTaskId = $this->_html->newFormInput(array("type" => "hidden", "value" => $task->id, "name" => "id"));
 
-        $formDeleteAction = $this->_indexPage ."?action=deleteTask";
-        $formDeleteSubmit = $this->_html->newFormInput(array("type" => "submit", "value" => "Supprimer", "data-icon" => "delete"));
-        $formContent = $formTaskId . $formDeleteSubmit;
-        $formDelete = $this->_html->newForm(array("action" => $formDeleteAction,
-                                                  "method" => "post",
-                                                  "id" => $formDeleteAction,
-                                                  "data-transition" => "turn",
-                                                  "data-direction" => "reverse"),
-                                            $formContent
-        );
-
-
-        $modelDoubleChoiceBox = new ModelDoubleChoiceBox();
-        $modelDoubleChoiceBox->title = "Supprimer '" .$task->name."'?";
-        $modelDoubleChoiceBox->idTag = "deletePopup";
-        $modelDoubleChoiceBox->mainMessage = "Etes-vous certain de vouloir effectuer cette opération?";
-        $modelDoubleChoiceBox->subMessage = "Toute suppression est irréversible.";
-        $modelDoubleChoiceBox->firstOption = $this->_html->newA(
-            array("href" => "#",
-                  "class" => "ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b"),
-            "Annuler"
-        );
-        $modelDoubleChoiceBox->secondOption = $this->_html->newA(
-            array("href" => "#",
-                "class" => "ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b"),
-            "Supprimer"
-        );
-
-        $doubleChoiceBox = $this->doubleChoiceBox($modelDoubleChoiceBox);
         $deleteBtn = $this->_html->newButton(array("data-icon" => "delete"), "Supprimer");
-        $deleteLink = $this->_html->newA(array("href" => $modelDoubleChoiceBox->idTag,
+        $deleteLink = $this->_html->newA(array(//"href" => $this->_getConfirmDelete() . "?task=" . serialize($task),
+                                               "href" => "#popupDialog",
                                                "data-rel" => "popup",
                                                "data-position-to" => "window",
                                                "data-transition" => "pop",
-                                               "class" => "ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b"),
-                                         $deleteBtn
+                                               /*"class" => "ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b"*/),
+                                        $deleteBtn
+        );
+        $modelDoubleChoiceBox = new ModelDoubleChoiceBox();
+        $modelDoubleChoiceBox->title = "Supprimer '" .$task->name."'?";
+        $modelDoubleChoiceBox->idTag = "popupDialog";
+        $modelDoubleChoiceBox->mainMessage = "Etes-vous certain de vouloir supprimer la tâche '" . $task->name . "'?";
+        $modelDoubleChoiceBox->subMessage = "Toute suppression est irréversible.";
+        $modelDoubleChoiceBox->firstOption = $this->_html->newA(array("href" => "#",
+                                                                      "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
+                                                                      "data-rel" => "back"),
+                                                                "Annuler"
+        );
+        $modelDoubleChoiceBox->secondOption = $this->_html->newA(array("href" => $this->_indexPage ."?action=deleteTask?taskId=" . $task->id,
+                                                                       "data-transition" => "turn",
+                                                                       "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
+                                                                       "data-rel" => "back"),
+                                                                 "Confirmer"
         );
 
-        /*
-<a href="#popupDialog" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b">Delete page...</a>
-<div data-role="popup" id="popupDialog" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">
-    <div data-role="header" data-theme="a">
-    <h1>Delete Page?</h1>
-    </div>
-    <div role="main" class="ui-content">
-        <h3 class="ui-title">Are you sure you want to delete this page?</h3>
-        <p>This action cannot be undone.</p>
-        <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
-        <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow">Delete</a>
-    </div>
-</div>
-*/
+        $doubleChoiceBox = $this->doubleChoiceBox($modelDoubleChoiceBox);
 
         $formDoneAction = $this->_indexPage . "?action=doneTask";
         $formDoneSubmit = $this->_html->newFormInput(array("type" => "submit", "value" => "Fait", "data-icon" => "check"));
@@ -254,7 +256,7 @@ class UserInterface {
         );
 
 
-        $uiContent = $name . $basicInfos . $description . $formEdit . $formDelete . $formDone ;
+        $uiContent = $name . $basicInfos . $description . $formEdit . $deleteLink . $doubleChoiceBox . $formDone ;
         $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $uiContent);
 
         $pageContent = $this->_header . $uiContent . $this->_footer;
@@ -342,19 +344,10 @@ class UserInterface {
         $headerTitle = $this->_html->newH(array(), 2, $boxContent->title);
         $header = $this->_html->newDiv(array("data-role" => "header", "data-theme" => "a"), $headerTitle);
 
-        $mainMessage = $this->_html->newH(array(), 3, $boxContent->mainMessage);
+        $mainMessage = $this->_html->newH(array("class" => "ui-title"), 3, $boxContent->mainMessage);
         $subMessage = $this->_html->newP(array(), $boxContent->subMessage);
-        $firstOption = $this->_html->newA(array("href" => "#",
-                                                "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
-                                                "data-rel" => "back"),
-                                          $boxContent->firstOption
-        );
-        $secondOption = $this->_html->newA(array("href" => "#",
-                                                 "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
-                                                 "data-rel" => "back"),
-                                           $boxContent->secondOption
-        );
-        $uiContent = $mainMessage . $subMessage . $firstOption . $secondOption;
+
+        $uiContent = $mainMessage . $subMessage . $boxContent->firstOption . $boxContent->secondOption;
         $uiContent = $this->_html->newDiv(array("role" => "main", "class" => "ui-content"), $uiContent);
 
         $confirmContent = $header . $uiContent;

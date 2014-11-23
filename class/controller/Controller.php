@@ -82,7 +82,7 @@ class Controller {
                 break;
 
             case "deleteTask":
-                $id = (isset($_POST["id"]))?$_POST["id"]:0;
+                $id = (isset($_GET["id"]))?$_GET["id"]:0;
                 $this->_ajax->deleteTask($id);
                 break;
 
