@@ -31,6 +31,8 @@ class ModelUser {
 
 class ModelTask {
     public $id;
+    public $id_task_creator;
+    public $id_task_executor;
     public $name;
     public $description;
     public $importance;
@@ -40,6 +42,8 @@ class ModelTask {
 
     public function hydrate(array $info){
         $this->id = (isset($info["id"]))?$info["id"]:null;
+        $this->id_task_creator = (isset($info["id_task_creator"]))?$info["id_task_creator"]:null;
+        $this->id_task_executor = (isset($info["id_task_executor"]))?$info["id_task_executor"]:null;
         $this->name = (isset($info["name"]))?$info["name"]:null;
         $this->description = (isset($info["description"]))?$info["description"]:null;
         $this->importance = (isset($info["importance"]))?$info["importance"]:null;

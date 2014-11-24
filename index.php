@@ -11,16 +11,14 @@
 //TODO : Faire en sorte que l'on puisse créer plusieur tâche à la suite sans avoir les informations de la précédente dans le formulaire (js pour vider après création)
 //TODO : Ajouter une boite de dialogue qui apparait après création, modification ou suppression d'une tâche
 //TODO : Ajouter une boite de confirmation qui apparait avant suppression d'une tâche
-//TODO : Ajouter une zone de recherche sur les listes
 //TODO : Implémenter le widget datepicker pour les choix des dates
-//TODO : Ajouter en clé étrangère l'id du créateur et du l'executeur dans la table "tasks",
-//TODO : Ajouter le filtrage à la récupération des taches (Ajax->getTasks(array $filters))
 //TODO : Lorsqu'une tâche est créée ou marquée comme faite, mettre à jour les champs "id_task_creator" ou "id_task_executor"
 //TODO : Ajouter un menu latéral à gauche permettant de réaliser les actions ci-dessous
     //TODO : Ajouter le filtrage à la récupération des taches (Ajax->getTasks(array $filters))
     //TODO : Ajouter une zone de recherche sur les listes
 //TODO : Veiller à ce que dans un formulaire tout les champs obligatoires soient remplit
 //TODO : Pour toute actions (edit, delete, done) s'assurer que le user a bien les droits
+//TODO : Mettre TOUT les edit, delete et done en bouton-liens (avec variable GET)
 
 session_start();
 include_once(dirname(__FILE__) . "/class/controller/Controller.php");

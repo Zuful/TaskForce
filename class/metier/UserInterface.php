@@ -155,32 +155,31 @@ class UserInterface {
             $basicInfos = $this->_html->newP(array(), $basicInfosContent);
             $linkContent = $img . $title . $basicInfos;
 
-            $linkSeeTask = $this->_html->newA(array("href" => $this->_seeTaskPage . "?taskId=" . $task->id,
+            $linkSeeTask = $this->_html->newA(array("href" => $this->_seeTaskPage . "?id=" . $task->id,
                                                     "data-transition" => "turn",
                                                     "data-direction" => "reverse"),
                                               $linkContent);
             //*******************************************Contextual Menu
             $liDivider = "Choisissez une action";
-            $linkEditTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=editTask&id=" . $task->id), "Editer");
-            $linkDeleteTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=deleteTask&id=" . $task->id), "Supprimer");
-            $linkDoneTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=doneTask&id=" . $task->id), "Marquer comme fait");
+            $linkEditTask = $this->_html->newA(array("href" => $this->_editTaskPage . "?id=" . $task->id, "data-transition" => "turn"), "Editer");
+            $linkDeleteTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=deleteTask&id=" . $task->id, "data-transition" => "turn"), "Supprimer");
+            $linkDoneTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=doneTask&id=" . $task->id, "data-transition" => "turn"), "Marquer comme fait");
 
-            $liContent = array($liDivider . $linkEditTask . $linkDeleteTask . $linkDoneTask);
+            $liContent = array($liDivider, $linkEditTask, $linkDeleteTask, $linkDoneTask);
             $liMenu = $this->_html->newLi(array("data-role" => "list-divider"), $liContent, 1);
             $modelContextualMenu = new ModelContextualMenu();
             $modelContextualMenu->liMenu = $liMenu;
             $modelContextualMenu->idTag = "contextualMenu_" . $task->id;
 
             $contextualMenu = $this->contextualMenu($modelContextualMenu);
-            //<a href="#popupMenu" data-rel="popup" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a">Actions...</a>
-            $linkDoneTask = $this->_html->newA(array("href" => $modelContextualMenu->idTag,
+            $linkTaskContextualMenu = $this->_html->newA(array("href" => "#" . $modelContextualMenu->idTag,
                                                      "data-split-icon" => "gear",
                                                      "data-rel" => "popup",
-                                                     "data-transition" => "pop",
+                                                     "data-transition" => "turn",
                                                      "class" => "ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a"),
                                                "Options");
 
-            $liContent = $linkSeeTask . $linkDoneTask . $contextualMenu;
+            $liContent = $linkSeeTask . $linkTaskContextualMenu . $contextualMenu;
 
             $list[] =  $liContent;
         }
@@ -225,7 +224,7 @@ class UserInterface {
         $basicInfos = $this->_html->newP(array(), $basicInfos);
         $description = $this->_html->newP(array(), $task->description);
 
-        $formEditAction = $this->_editTaskPage . "?taskId=" . $task->id;
+        $formEditAction = $this->_editTaskPage . "?id=" . $task->id;
         $formEditSubmit = $this->_html->newFormInput(array("type" => "submit", "value" => "Editer", "data-icon" => "edit"));
         $formEdit = $this->_html->newForm(array("action" => $formEditAction,
                                                 "method" => "post",
@@ -255,7 +254,7 @@ class UserInterface {
                                                                       "data-rel" => "back"),
                                                                 "Annuler"
         );
-        $modelDoubleChoiceBox->secondOption = $this->_html->newA(array("href" => $this->_indexPage ."?action=deleteTask?taskId=" . $task->id,
+        $modelDoubleChoiceBox->secondOption = $this->_html->newA(array("href" => $this->_indexPage ."?action=deleteTask?id=" . $task->id,
                                                                        "data-transition" => "turn",
                                                                        "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
                                                                        "data-rel" => "back"),
@@ -317,7 +316,7 @@ class UserInterface {
         $task->due_date = $this->_helper->datePickerToTime($task->due_date, true);
 
         $name = $this->_html->newFormInput(array("type" => "text", "name" => "name", "value" => $task->name), "Nom : ");
-        $description = $this->_html->newTextarea(array("name" => "description", "value" => $task->description), "Description : ");
+        $description = $this->_html->newTextarea(array("name" => "description"), $task->description);
 
         $optionBasse = $this->_html->newFormOption(array(), "Basse");
         $optionMoyenne = $this->_html->newFormOption(array(), "Moyenne");
@@ -326,20 +325,22 @@ class UserInterface {
 
         $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
         $dueDate = $this->_html->newFormInput(array("type" => "text", "data-role" => "date", "value" => $task->due_date));
-        $id = $this->_html->newFormInput(array("type" => "hidden", "name" => "id", "value" => $taskId));
+        $id = $this->_html->newFormInput(array("type" => "hidden", "name" => "id", "value" => $task->id));
+        $status = $this->_html->newFormInput(array("type" => "hidden", "name" => "status", "value" => $task->status));
+        $idTaskCreator = $this->_html->newFormInput(array("type" => "hidden", "name" => "id_task_creator", "value" => $task->id_task_creator));
         $creationDate = $this->_html->newFormInput(array("type" => "hidden", "name" => "creation_date", "value" => time()));
         $submit = $this->_html->newFormInput(array("type" => "submit", "value" => "Editer"));
 
-        $formContent = $name . $description . $selectImportance . $dueDate . $id . $creationDate . $submit;
+        $formContent = $name . $description . $selectImportance . $dueDate . $status . $idTaskCreator . $id . $creationDate . $submit;
 
-        $formProps = array("action" => $this->_indexPage  ."?action=editTask&taskId=" . $task->id, "method" => "post", "id" => "createTask", "data-transition" => "turn");
-        $formCreate = $this->_html->newForm($formProps, $formContent);
+        $formProps = array("action" => $this->_indexPage  ."?action=editTask", "method" => "post", "id" => "editTask", "data-transition" => "turn");
+        $formEdit = $this->_html->newForm($formProps, $formContent);
 
-        $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $formCreate);
+        $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $formEdit);
         $pageContent = $this->_header . $uiContent . $this->_footer;
-        $createTaskPage = $this->_html->newDiv(array("data-role" => "page"), $pageContent);
+        $editTaskPage = $this->_html->newDiv(array("data-role" => "page"), $pageContent);
 
-        return $createTaskPage;
+        return $editTaskPage;
     }
 
     public function contactsPage(){
@@ -384,7 +385,7 @@ class UserInterface {
     }
 
     public function contextualMenu(ModelContextualMenu $modelContextualMenu){
-        $listMenu = $this->_html->newUl(array(), $modelContextualMenu->liMenu);
+        $listMenu = $this->_html->newUl(array("data-role" => "listview", "data-inset" => "true", "style" => "min-width:210px;"), $modelContextualMenu->liMenu);
         $contextualMenu = $this->_html->newDiv(array("data-role" => "popup",
                                                      "id" => $modelContextualMenu->idTag,
                                                      "data-theme" => "b"),
