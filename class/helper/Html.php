@@ -88,7 +88,7 @@ class Html {
         return "<ul" . $properties.">" . $list ."</ul>";
     }
 
-    public function newLi(array $props, array $list){
+    public function newLi(array $props, array $list, $positionProp = null){
         $properties = null;
         $li = null;
 
@@ -99,7 +99,19 @@ class Html {
         }
 
         foreach($list as $liKey => $liVal){
-            $li .= "<li" . $properties.">" . $liVal ."</li>";
+            if(!is_null($positionProp)){
+                $i = 1;
+                if($positionProp == $i){
+                    $li .= "<li" . $properties.">" . $liVal ."</li>";
+                }
+                else{
+                    $li .= "<li>" . $liVal ."</li>";
+                }
+                $i++;
+            }
+            else{
+                $li .= "<li>" . $liVal ."</li>";
+            }
         }
 
         return $li;

@@ -72,6 +72,11 @@ class ModelDoubleChoiceBox{
     public $secondOption;
 }
 
+class ModelContextualMenu{
+    public $idTag;
+    public $liMenu;
+}
+
 class ModelAjaxLoadFiles{
     public $confirmDelete;
     public $taskMenu;

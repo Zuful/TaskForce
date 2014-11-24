@@ -15,6 +15,7 @@ include_once(dirname(__FILE__) . "/Ajax.php");
 use Helper\Helper;
 use Helper\Html;
 use Model\ModelAjaxLoadFiles;
+use Model\ModelContextualMenu;
 use Model\ModelDoubleChoiceBox;
 use Model\ModelUser;
 
@@ -147,6 +148,7 @@ class UserInterface {
         $list = array();
 
         foreach($tasks as $task){
+            //******************************************Task basic infos
             $img = null;
             $title = $this->_html->newH(array(), 2, $task->name);
             $basicInfosContent = "Importance : " . $task->importance ."<br> Date limite : " . $task->due_date;
@@ -157,9 +159,28 @@ class UserInterface {
                                                     "data-transition" => "turn",
                                                     "data-direction" => "reverse"),
                                               $linkContent);
-            $linkDoneTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=doneTask&id=" . $task->id, "data-split-icon" => "gear"), "Options");
+            //*******************************************Contextual Menu
+            $liDivider = "Choisissez une action";
+            $linkEditTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=editTask&id=" . $task->id), "Editer");
+            $linkDeleteTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=deleteTask&id=" . $task->id), "Supprimer");
+            $linkDoneTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=doneTask&id=" . $task->id), "Marquer comme fait");
 
-            $liContent = $linkSeeTask . $linkDoneTask;
+            $liContent = array($liDivider . $linkEditTask . $linkDeleteTask . $linkDoneTask);
+            $liMenu = $this->_html->newLi(array("data-role" => "list-divider"), $liContent, 1);
+            $modelContextualMenu = new ModelContextualMenu();
+            $modelContextualMenu->liMenu = $liMenu;
+            $modelContextualMenu->idTag = "contextualMenu_" . $task->id;
+
+            $contextualMenu = $this->contextualMenu($modelContextualMenu);
+            //<a href="#popupMenu" data-rel="popup" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a">Actions...</a>
+            $linkDoneTask = $this->_html->newA(array("href" => $modelContextualMenu->idTag,
+                                                     "data-split-icon" => "gear",
+                                                     "data-rel" => "popup",
+                                                     "data-transition" => "pop",
+                                                     "class" => "ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a"),
+                                               "Options");
+
+            $liContent = $linkSeeTask . $linkDoneTask . $contextualMenu;
 
             $list[] =  $liContent;
         }
@@ -217,8 +238,7 @@ class UserInterface {
         $formTaskId = $this->_html->newFormInput(array("type" => "hidden", "value" => $task->id, "name" => "id"));
 
         $deleteBtn = $this->_html->newButton(array("data-icon" => "delete"), "Supprimer");
-        $deleteLink = $this->_html->newA(array(//"href" => $this->_getConfirmDelete() . "?task=" . serialize($task),
-                                               "href" => "#popupDialog",
+        $deleteLink = $this->_html->newA(array("href" => "#confirmDelete" . $task->id,
                                                "data-rel" => "popup",
                                                "data-position-to" => "window",
                                                "data-transition" => "pop",
@@ -227,7 +247,7 @@ class UserInterface {
         );
         $modelDoubleChoiceBox = new ModelDoubleChoiceBox();
         $modelDoubleChoiceBox->title = "Supprimer '" .$task->name."'?";
-        $modelDoubleChoiceBox->idTag = "popupDialog";
+        $modelDoubleChoiceBox->idTag = "confirmDelete" . $task->id;
         $modelDoubleChoiceBox->mainMessage = "Etes-vous certain de vouloir supprimer la tâche '" . $task->name . "'?";
         $modelDoubleChoiceBox->subMessage = "Toute suppression est irréversible.";
         $modelDoubleChoiceBox->firstOption = $this->_html->newA(array("href" => "#",
@@ -361,5 +381,28 @@ class UserInterface {
         );
 
         return $confirmPopUp;
+    }
+
+    public function contextualMenu(ModelContextualMenu $modelContextualMenu){
+        $listMenu = $this->_html->newUl(array(), $modelContextualMenu->liMenu);
+        $contextualMenu = $this->_html->newDiv(array("data-role" => "popup",
+                                                     "id" => $modelContextualMenu->idTag,
+                                                     "data-theme" => "b"),
+                                               $listMenu
+        );
+
+        return $contextualMenu;
+        /*
+         <a href="#popupMenu" data-rel="popup" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a">Actions...</a>
+            <div data-role="popup" id="popupMenu" data-theme="b">
+                    <ul data-role="listview" data-inset="true" style="min-width:210px;">
+                        <li data-role="list-divider">Choose an action</li>
+                        <li><a href="#">View details</a></li>
+                        <li><a href="#">Edit</a></li>
+                        <li><a href="#">Disable</a></li>
+                        <li><a href="#">Delete</a></li>
+                    </ul>
+            </div>
+         */
     }
 }
