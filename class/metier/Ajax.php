@@ -105,7 +105,6 @@ class Ajax {
 
         if($deleteUsersAndTask){
             $this->_crud->setTable("tasks");
-            $this->_crud->setIdFieldName("id");
             $deleteTask = $this->_crud->delete($id);
 
             if($deleteTask){
@@ -133,7 +132,23 @@ class Ajax {
         $this->_crud->setTable("users_and_tasks");
         $this->_crud->setIdFieldName("task_id");
 
-        return $this->_crud->delete($taskId);
+        $deleteUserAndTask = $this->_crud->delete($taskId);
+        $this->_crud->setDefaultIdFieldName();
+
+        if($deleteUserAndTask){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    public function doneTask(ModelTask $task){
+        $task->execution_date = time();
+        $task->status = 1;
+        $task->id_task_executor = $this->_user;
+
+        $this->updateTask($task);
     }
 
     public function getLastInsertId(){

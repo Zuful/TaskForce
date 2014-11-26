@@ -27,6 +27,7 @@ class UserInterface {
     private $_header;
     private $_footer;
     private $_home;
+    private $_user;
 
     private $_indexPage;
     private $_contactsPage;
@@ -43,7 +44,8 @@ class UserInterface {
     private $_ajaxLoadFiles;
 
     public function __CONSTRUCT(ModelUser $user){
-        $this->_ajax = new Ajax($user);
+        $this->_user = $user;
+        $this->_ajax = new Ajax($this->_user);
         $this->_html = new Html();
         $this->_helper = new Helper();
 
@@ -285,8 +287,8 @@ class UserInterface {
     }
 
     public function createTaskPage(){
-        $name = $this->_html->newFormInput(array("type" => "text","name" => "name"), "Nom : ");
-        $description = $this->_html->newTextarea(array("name" => "description"), "Description : ");
+        $name = $this->_html->newFormInput(array("type" => "text","name" => "name", "placeholder" => "Nom"));
+        $description = $this->_html->newTextarea(array("name" => "description", "placeholder" => "Description"), null);
 
         $optionBasse = $this->_html->newFormOption(array(), "Basse");
         $optionMoyenne = $this->_html->newFormOption(array(), "Moyenne");
@@ -296,10 +298,11 @@ class UserInterface {
         $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
         $dueDate = $this->_html->newFormInput(array("type" => "text", "data-role" => "date"));
         $status = $this->_html->newFormInput(array("type" => "hidden", "name" => "status", "value" => 0));
+        $id_task_creator = $this->_html->newFormInput(array("type" => "hidden", "name" => "id_task_creator", "value" => $this->_user->id));
         $creationDate = $this->_html->newFormInput(array("type" => "hidden", "name" => "creation_date", "value" => time()));
         $submit = $this->_html->newFormInput(array("type" => "submit", "value" => "Creer"));
 
-        $formContent = $name . $description . $selectImportance . $dueDate . $status . $creationDate . $submit;
+        $formContent = $name . $description . $selectImportance . $dueDate . $status . $id_task_creator . $creationDate . $submit;
 
         $formProps = array("action" => $this->_indexPage . "?action=createTask", "method" => "post", "id" => "createTask", "data-transition" => "turn");
         $formCreate = $this->_html->newForm($formProps, $formContent);

@@ -38,6 +38,7 @@ class ModelTask {
     public $importance;
     public $status;
     public $due_date;
+    public $execution_date;
     public $creation_date;
 
     public function hydrate(array $info){
@@ -49,6 +50,7 @@ class ModelTask {
         $this->importance = (isset($info["importance"]))?$info["importance"]:null;
         $this->status = (isset($info["status"]))?$info["status"]:null;
         $this->due_date = (isset($info["due_date"]))?$info["due_date"]:null;
+        $this->execution_date = (isset($info["execution_date"]))?$info["execution_date"]:null;
         $this->creation_date = (isset($info["creation_date"]))?$info["creation_date"]:null;
     }
 }

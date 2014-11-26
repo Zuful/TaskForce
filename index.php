@@ -28,6 +28,7 @@ use Controller\Controller;
 $ctrl = new Controller();
 if(isset($_GET["action"])){
     if($ctrl->action($_GET["action"])){
+
         header("Location : index.php");
         //Afficher un message de confirmation
     }

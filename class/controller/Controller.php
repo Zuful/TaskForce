@@ -35,13 +35,13 @@ class Controller {
             $_SESSION["user"] = serialize($user);
         }
         elseif(isset($_SESSION["user"])){
-            $user = unserialize($_SESSION["user"]);
+            $this->_user = unserialize($_SESSION["user"]);
         }
         else{
             header("Location:signIn.php");
         }
 
-        $this->_user = (isset($user) && $user instanceof ModelUser)?$user:null;
+        $this->_user = (!is_null($this->_user) && $this->_user instanceof ModelUser)?$this->_user:null;
         $this->_ajax = new Ajax($this->_user);
         $this->_ui = new UserInterface($this->_user);
         $this->_isSignedIn = (is_null($this->_user->id))?false:true;
@@ -98,8 +98,43 @@ class Controller {
                 }
 
                 $task = $this->_ajax->getTask($id);
-                $task->status = 1;
-                $this->_ajax->updateTask($task);
+                $this->_ajax->doneTask($task);
+                break;
+
+            case "createUser":
+
+                break;
+
+            case "updateUser":
+                //Todo : add an updateUser method
+                break;
+
+            case "deleteUser":
+                //Todo : add a deleteUser method
+                break;
+
+            default:
+                return false;
+        }
+        return false;
+    }
+
+    public function actionSuccess($action, ModelTask $task){
+        switch($action){
+            case "createTask":
+                $message = "Nouvelle tâche '" . $task->name . "' créée";
+                break;
+
+            case "editTask":
+                $message = "Tâche '" . $task->name . "' éditée";
+                break;
+
+            case "deleteTask":
+                $message = "Tâche '" . $task->name . "' supprimée";
+                break;
+
+            case "doneTask":
+
                 break;
 
             case "createUser":
