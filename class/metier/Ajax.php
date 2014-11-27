@@ -146,7 +146,7 @@ class Ajax {
     public function doneTask(ModelTask $task){
         $task->execution_date = time();
         $task->status = 1;
-        $task->id_task_executor = $this->_user;
+        $task->id_task_executor = $this->_user->id;
 
         $this->updateTask($task);
     }

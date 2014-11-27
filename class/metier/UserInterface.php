@@ -364,6 +364,21 @@ class UserInterface {
         return $settingsPage;
     }
 
+    public function getLeftMenu(){
+        /*<div data-role="page">
+
+<div data-role="panel" id="mypanel">
+    <!-- panel content goes here (data-position = "left" / data-display="reveal") -->
+</div><!-- /panel -->
+
+<!-- header -->
+<!-- content -->
+<!-- footer -->
+
+</div><!-- page -->
+        */
+    }
+
     public function doubleChoiceBox(ModelDoubleChoiceBox $boxContent){
         $headerTitle = $this->_html->newH(array(), 2, $boxContent->title);
         $header = $this->_html->newDiv(array("data-role" => "header", "data-theme" => "a"), $headerTitle);
