@@ -17,6 +17,7 @@ use Helper\Html;
 use Model\ModelAjaxLoadFiles;
 use Model\ModelContextualMenu;
 use Model\ModelDoubleChoiceBox;
+use Model\ModelPanel;
 use Model\ModelUser;
 
 class UserInterface {
@@ -123,6 +124,10 @@ class UserInterface {
 
     public function homePage(){
         if(is_null($this->_home)){
+            $leftMenu = $this->getLeftMenu();
+
+            $leftMenuBtn = $this->_html->newButton(array("data-icon" => "arrow-r"), "Options");
+            $leftMenuLink = $this->_html->newA(array("href" => "#leftMenu"), $leftMenuBtn);
             $taskList = $this->getTaskList();
 
             $btnNewTask = $this->_html->newButton(array("data-icon" => "plus"), "Nouvelle tache");
@@ -130,11 +135,11 @@ class UserInterface {
                                                     "data-transition" => "turn",
                                                     "data-direction" => "reverse"),
                                               $btnNewTask);
-            $ui = $linkNewTask . $taskList;
+            $ui = $linkNewTask . $leftMenuLink . $taskList;
 
             $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $ui);
 
-            $page = $this->_header . $uiContent . $this->_footer;
+            $page = $leftMenu . $this->_header . $uiContent . $this->_footer;
 
             $this->_home = $this->_html->newDiv(array("data-role" => "page", "id" => "home"), $page);
 
@@ -290,10 +295,8 @@ class UserInterface {
         $name = $this->_html->newFormInput(array("type" => "text","name" => "name", "placeholder" => "Nom"));
         $description = $this->_html->newTextarea(array("name" => "description", "placeholder" => "Description"), null);
 
-        $optionBasse = $this->_html->newFormOption(array(), "Basse");
-        $optionMoyenne = $this->_html->newFormOption(array(), "Moyenne");
-        $optionHaute = $this->_html->newFormOption(array(), "Haute");
-        $choiceImportance = $optionBasse . $optionMoyenne . $optionHaute;
+        $optionsImportance = array("Basse", "Moyenne", "Haute");
+        $choiceImportance = $this->_html->newFormOption(array(), $optionsImportance);
 
         $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
         $dueDate = $this->_html->newFormInput(array("type" => "text", "data-role" => "date"));
@@ -321,10 +324,8 @@ class UserInterface {
         $name = $this->_html->newFormInput(array("type" => "text", "name" => "name", "value" => $task->name), "Nom : ");
         $description = $this->_html->newTextarea(array("name" => "description"), $task->description);
 
-        $optionBasse = $this->_html->newFormOption(array(), "Basse");
-        $optionMoyenne = $this->_html->newFormOption(array(), "Moyenne");
-        $optionHaute = $this->_html->newFormOption(array(), "Haute");
-        $choiceImportance = $optionBasse . $optionMoyenne . $optionHaute;
+        $optionImportance = array("Basse", "Moyenne", "Haute");
+        $choiceImportance = $this->_html->newFormOption(array(), $optionImportance);
 
         $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
         $dueDate = $this->_html->newFormInput(array("type" => "text", "data-role" => "date", "value" => $task->due_date));
@@ -365,17 +366,83 @@ class UserInterface {
     }
 
     public function getLeftMenu(){
-        /*<div data-role="page">
+        //*****************************************SEARCH FORM************************************************
+        $searchInput = $this->_html->newFormInput(array("type" => "text", "name" => "search"));
+        $searchSubmit = $this->_html->newFormInput(array("type" => "submit", "data-icon" => "search", "value" => "Recherche"));
+        $searchContent = $searchInput . $searchSubmit;
+        $formSearch = $this->_html->newForm(array("action" => $this->_indexPage . "?action=search",
+                                                  "method" => "post",
+                                                  "id" => "search"),
+                                            $searchContent
+        );
 
-<div data-role="panel" id="mypanel">
-    <!-- panel content goes here (data-position = "left" / data-display="reveal") -->
-</div><!-- /panel -->
+        //*****************************************FILTER FORM************************************************
+        $filterArray = array("Plus au moins important",
+                             "Moins au plus important",
+                             "Du plus récent au plus ancien",
+                             "Du plus ancien au plus récent",
+                             "Importance élevée seulement",
+                             "Importance moyenne seulement",
+                             "Importance basse seulement"
+        );
+        $filterOptions = $this->_html->newFormOption(array(), $filterArray);
+        $formSelect = $this->_html->newFormSelect(array(), $filterOptions);
+        $filterSubmit = $this->_html->newFormInput(array("type" => "submit", "data-icon" => "bullets" , "value" => "Filtrer"));
+        $filterContent = $formSelect . $filterSubmit;
+        $formFilters = $this->_html->newForm(array("action" => $this->_indexPage . "?action=filter",
+                                                   "method" => "post",
+                                                   "id" => "filter"),
+                                             $filterContent
+        );
 
-<!-- header -->
-<!-- content -->
-<!-- footer -->
+        $panelContent = $formSearch . $formFilters;
 
-</div><!-- page -->
+        $modelPanel = new ModelPanel();
+        $modelPanel->dataDisplay = "reveal";
+        $modelPanel->dataPosition = "left";
+        $modelPanel->panelContent = $panelContent;
+
+        $leftMenu = $this->getPanelMenu($modelPanel);
+
+        return $leftMenu;
+
+        /*HOW TO IMPLEMENT THE PANEL IN A PAGE
+            <div data-role="page">
+
+            <div data-role="panel" id="mypanel">
+                <!-- panel content goes here (data-position = "left" / data-display="reveal") -->
+            </div><!-- /panel -->
+
+            <!-- header -->
+            <!-- content -->
+            <!-- footer -->
+
+            </div><!-- page -->
+        */
+    }
+    //************************************************************FOR MOBILE HELPER***********************************//
+    public function getPanelMenu(ModelPanel $panel){
+        $panel = $this->_html->newDiv(array("data-role" => "panel",
+                                            "id" => "leftMenu",
+                                            "data-position" => $panel->dataPosition,
+                                            "data-display" => $panel->dataDisplay),
+                                      $panel->panelContent
+        );
+
+        return $panel;
+    }
+
+    public function dialogBox($message, $idTag = null){
+        $idTag = (!is_null($idTag))?$idTag:"dialogBox";
+        $paragMessage = $this->_html->newP(array(), $message);
+        $popUp = $this->_html->newDiv(array("data-role" => "popup", "id" => $idTag), $paragMessage);
+
+        return $popUp;
+        /*
+            <a href="#popupBasic" data-rel="popup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-transition="pop">Basic Popup</a>
+            <div data-role="popup" id="popupBasic">
+                <p>This is a completely basic popup, no options set.</p>
+            </div>
         */
     }
 
@@ -411,17 +478,5 @@ class UserInterface {
         );
 
         return $contextualMenu;
-        /*
-         <a href="#popupMenu" data-rel="popup" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a">Actions...</a>
-            <div data-role="popup" id="popupMenu" data-theme="b">
-                    <ul data-role="listview" data-inset="true" style="min-width:210px;">
-                        <li data-role="list-divider">Choose an action</li>
-                        <li><a href="#">View details</a></li>
-                        <li><a href="#">Edit</a></li>
-                        <li><a href="#">Disable</a></li>
-                        <li><a href="#">Delete</a></li>
-                    </ul>
-            </div>
-         */
     }
 }

@@ -20,12 +20,93 @@ class Ajax {
     private $_crud;
     private $_pdo;
 
+    private $_queryMoreToLessRecent;
+    private $_queryLessToMoreRecent;
+    private $_queryMoreToLessImportant;
+    private $_queryLessToMoreImportant;
+    private $_queryHighImportanceOnly;
+    private $_queryIntermediaryImportanceOnly;
+    private $_queryLowImportanceOnly;
+
+    private $_defaultTaskListQuery;
+
+
     public function __CONSTRUCT(ModelUser $user){
         $this->_user = $user;
         $this->_pdo = ($GLOBALS["pdo"] instanceof \PDO)?$GLOBALS["pdo"]:null;
         $this->_crud = new Crud($this->_pdo);
+
+        $filterArray = array("Plus au moins important",
+                             "Moins au plus important",
+                             "Du plus récent au plus ancien",
+                             "Du plus ancien au plus récent",
+                             "Importance élevée seulement",
+                             "Importance moyenne seulement",
+                             "Importance basse seulement"
+        );
     }
 
+    private function _getQueryMoreToLessRecent(){
+        if(is_null($this->_queryMoreToLessRecent)){
+            $this->_queryMoreToLessRecent = "ORDER BY date_creation DESC";
+            return $this->_queryMoreToLessImportant;
+        }
+        else{
+            return $this->_queryMoreToLessImportant;
+        }
+    }
+
+    private function _getQueryLessToMoreRecent(){
+        if(is_null($this->_queryLessToMoreRecent)){
+            $this->_queryLessToMoreRecent = "ORDER BY date_creation ASC";
+            return $this->_queryLessToMoreRecent;
+        }
+        else{
+            return $this->_queryLessToMoreRecent;
+        }
+    }
+/*
+    private function _getQueryMoreToLessImportant(){
+        if(is_null($this->_queryMoreToLessImportant)){
+            $this->_queryLessToMoreRecent = "ORDER BY date_creation ASC";
+            return $this->_queryMoreToLessImportant;
+        }
+        else{
+            return $this->_queryMoreToLessImportant;
+        }
+    }
+
+    private function _getQueryLessToMoreImportant(){
+        if(is_null($this->_queryLessToMoreRecent)){
+            $this->_queryLessToMoreRecent = "ORDER BY date_creation ASC";
+            return $this->_queryLessToMoreRecent;
+        }
+        else{
+            return $this->_queryLessToMoreRecent;
+        }
+    }
+*/
+
+    private function _getQueryImportantOnly(){
+        if(is_null($this->_queryLessToMoreRecent)){
+            $this->_queryLessToMoreRecent = "ORDER BY date_creation ASC";
+            return $this->_queryLessToMoreRecent;
+        }
+        else{
+            return $this->_queryLessToMoreRecent;
+        }
+    }
+
+    private function _getQueryIntermediaryImportanceOnly(){
+        if(is_null($this->_queryIntermediaryImportanceOnly)){
+            $this->_queryLessToMoreRecent = "ORDER BY date_creation ASC";
+            return $this->_queryLessToMoreRecent;
+        }
+        else{
+            return $this->_queryLessToMoreRecent;
+        }
+    }
+    
     public function createTask(ModelTask $task){
         $elms = json_encode($task);
         $elms = json_decode($elms, true);
@@ -44,7 +125,8 @@ class Ajax {
      * @return ModelTask[]
      */
     public function getTasks(array $filters = null){
-        $sql = "SELECT * FROM tasks AS T INNER JOIN users_and_tasks AS UAT
+        $sql = "SELECT * FROM tasks AS T
+                INNER JOIN users_and_tasks AS UAT
                 ON T.id = UAT.task_id
                 WHERE UAT.user_id = :user_id
                 AND status = 0

@@ -87,3 +87,9 @@ class ModelAjaxLoadFiles{
     public $confirmDelete;
     public $taskMenu;
 }
+
+class ModelPanel{
+    public $dataPosition;
+    public $dataDisplay;
+    public $panelContent;
+}

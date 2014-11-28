@@ -197,14 +197,17 @@ class Html {
         return $select;
     }
 
-    public function newFormOption(array $props, $content){
+    public function newFormOption(array $props, array $options){
         $properties = null;
+        $option = null;
 
         foreach($props as $propKey => $propVal){
             $properties .= " " . $propKey . "='" . $propVal . "'";
         }
 
-        $option = "<option" . $properties . ">" . $content ."</option>";
+        foreach($options as $key => $val){
+            $option .= "<option" . $properties . ">" . $val ."</option>";
+        }
 
         return $option;
     }

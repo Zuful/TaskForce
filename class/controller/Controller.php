@@ -123,12 +123,7 @@ class Controller {
         switch($action){
             case "createTask":
                 $message = "Nouvelle tâche '" . $task->name . "' créée";
-                /*
-                    <a href="#popupBasic" data-rel="popup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-transition="pop">Basic Popup</a>
-                    <div data-role="popup" id="popupBasic">
-                        <p>This is a completely basic popup, no options set.</p>
-                    </div>
-                */
+
                 break;
 
             case "editTask":
