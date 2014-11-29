@@ -202,11 +202,13 @@ class Html {
         $option = null;
 
         foreach($props as $propKey => $propVal){
-            $properties .= " " . $propKey . "='" . $propVal . "'";
+            if($propKey != "value"){
+                $properties .= " " . $propKey . "='" . $propVal . "'";
+            }
         }
 
         foreach($options as $key => $val){
-            $option .= "<option" . $properties . ">" . $val ."</option>";
+            $option .= "<option" . $properties . " value='" . $key . "'>" . $val ."</option>";
         }
 
         return $option;

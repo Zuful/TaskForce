@@ -9,7 +9,7 @@
 $host = "localhost";
 $dbUser = "root";
 $password = "";
-$database = "agenda";
+$database = "taskforce";
 
 $dsn = "mysql:host=" . $host . ";dbname=" . $database;
 

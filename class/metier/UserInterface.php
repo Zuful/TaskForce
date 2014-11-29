@@ -17,6 +17,7 @@ use Helper\Html;
 use Model\ModelAjaxLoadFiles;
 use Model\ModelContextualMenu;
 use Model\ModelDoubleChoiceBox;
+use Model\ModelFilters;
 use Model\ModelPanel;
 use Model\ModelUser;
 
@@ -110,6 +111,26 @@ class UserInterface {
         }
     }
 
+    /**
+     *
+     * @param null $level
+     * @return array | string
+     */
+    private function _getTaskImportance($level = null){
+        $arrayImportance = array(1 => "Basse", 2 => "Moyenne", 3 => "Haute");
+
+        if(!is_null($level)){
+            foreach($arrayImportance as $importanceKey => $importanceVal){
+                if($importanceKey == $level ){
+                    return $importanceVal;
+                }
+            }
+        }
+
+
+        return $arrayImportance;
+    }
+
     private function _getConfirmDelete(){
         $ajaxLoadFiles = $this->_getAjaxLoadFiles();
         if(is_null($ajaxLoadFiles->confirmDelete)){
@@ -151,14 +172,19 @@ class UserInterface {
     }
 
     public function getTaskList(){
-        $tasks = $this->_ajax->getTasks();
+        $modelFilter = new ModelFilters();
+        $modelFilter->importance = (isset($_POST["filterImportance"]))?$_POST["filterImportance"]:null;
+        $modelFilter->chronology = (isset($_POST["filterChronology"]))?$_POST["filterChronology"]:null;
+        $modelFilter->status = (isset($_POST["filterStatus"]))?$_POST["filterStatus"]:null;
+
+        $tasks = $this->_ajax->getTasks($modelFilter);
         $list = array();
 
         foreach($tasks as $task){
             //******************************************Task basic infos
             $img = null;
             $title = $this->_html->newH(array(), 2, $task->name);
-            $basicInfosContent = "Importance : " . $task->importance ."<br> Date limite : " . $task->due_date;
+            $basicInfosContent = "Importance : " . $this->_getTaskImportance($task->importance) ."<br> Date limite : " . $task->due_date;
             $basicInfos = $this->_html->newP(array(), $basicInfosContent);
             $linkContent = $img . $title . $basicInfos;
 
@@ -227,7 +253,7 @@ class UserInterface {
 
         $name = $this->_html->newH(array(), 2,$task->name);
         $basicInfos = "Date limite : " . $task->due_date . "<br>
-                       Importance : " . $task->importance;
+                       Importance : " . $this->_getTaskImportance($task->importance);
         $basicInfos = $this->_html->newP(array(), $basicInfos);
         $description = $this->_html->newP(array(), $task->description);
 
@@ -295,8 +321,7 @@ class UserInterface {
         $name = $this->_html->newFormInput(array("type" => "text","name" => "name", "placeholder" => "Nom"));
         $description = $this->_html->newTextarea(array("name" => "description", "placeholder" => "Description"), null);
 
-        $optionsImportance = array("Basse", "Moyenne", "Haute");
-        $choiceImportance = $this->_html->newFormOption(array(), $optionsImportance);
+        $choiceImportance = $this->_html->newFormOption(array(), $this->_getTaskImportance());
 
         $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
         $dueDate = $this->_html->newFormInput(array("type" => "text", "data-role" => "date"));
@@ -324,8 +349,7 @@ class UserInterface {
         $name = $this->_html->newFormInput(array("type" => "text", "name" => "name", "value" => $task->name), "Nom : ");
         $description = $this->_html->newTextarea(array("name" => "description"), $task->description);
 
-        $optionImportance = array("Basse", "Moyenne", "Haute");
-        $choiceImportance = $this->_html->newFormOption(array(), $optionImportance);
+        $choiceImportance = $this->_html->newFormOption(array(), $this->_getTaskImportance());
 
         $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
         $dueDate = $this->_html->newFormInput(array("type" => "text", "data-role" => "date", "value" => $task->due_date));
@@ -365,6 +389,9 @@ class UserInterface {
         return $settingsPage;
     }
 
+    /**
+     * @return string $leftMenu
+     */
     public function getLeftMenu(){
         //*****************************************SEARCH FORM************************************************
         $searchInput = $this->_html->newFormInput(array("type" => "text", "name" => "search"));
@@ -377,16 +404,32 @@ class UserInterface {
         );
 
         //*****************************************FILTER FORM************************************************
-        $filterArray = array("Plus au moins important",
-                             "Moins au plus important",
-                             "Du plus récent au plus ancien",
-                             "Du plus ancien au plus récent",
-                             "Importance élevée seulement",
-                             "Importance moyenne seulement",
-                             "Importance basse seulement"
+        $filterImportanceArray = array(
+            0 => "Tous",
+            3 => "Importance élevée seulement",
+            2 => "Importance moyenne seulement",
+            1 => "Importance basse seulement"
         );
-        $filterOptions = $this->_html->newFormOption(array(), $filterArray);
-        $formSelect = $this->_html->newFormSelect(array(), $filterOptions);
+
+        $filterChronologyArray = array(
+            5 => "Partant de la plus récente créaction",
+            4 => "Partant de la plus ancienne créaction",
+            7 => "Partant de la plus récente date limite",
+            6 => "Partant de la plus ancienne date limite",
+            9 => "Partant de la plus récente résolution",
+            8 => "Partant de la plus ancienne résolution"
+        );
+
+        $filterImportanceOptions = $this->_html->newFormOption(array(), $filterImportanceArray);
+        $filterImportanceSelect = $this->_html->newFormSelect(array("name" => "filterImportance"), $filterImportanceOptions);
+
+        $filterChronologyOptions = $this->_html->newFormOption(array(), $filterChronologyArray);
+        $filterChronologySelect = $this->_html->newFormSelect(array("name" => "filterChronology"), $filterChronologyOptions);
+
+        $formSelect = $filterImportanceSelect . $filterChronologySelect;
+
+        //TODO : Ajouter un form switch pour résolu - non résolu avec pour name "filterStatus"
+
         $filterSubmit = $this->_html->newFormInput(array("type" => "submit", "data-icon" => "bullets" , "value" => "Filtrer"));
         $filterContent = $formSelect . $filterSubmit;
         $formFilters = $this->_html->newForm(array("action" => $this->_indexPage . "?action=filter",
@@ -421,12 +464,16 @@ class UserInterface {
         */
     }
     //************************************************************FOR MOBILE HELPER***********************************//
-    public function getPanelMenu(ModelPanel $panel){
+    /**
+     * @param ModelPanel $modelPanel
+     * @return string $panel
+     */
+    public function getPanelMenu(ModelPanel $modelPanel){
         $panel = $this->_html->newDiv(array("data-role" => "panel",
                                             "id" => "leftMenu",
-                                            "data-position" => $panel->dataPosition,
-                                            "data-display" => $panel->dataDisplay),
-                                      $panel->panelContent
+                                            "data-position" => $modelPanel->dataPosition,
+                                            "data-display" => $modelPanel->dataDisplay),
+                                      $modelPanel->panelContent
         );
 
         return $panel;

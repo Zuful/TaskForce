@@ -93,3 +93,15 @@ class ModelPanel{
     public $dataDisplay;
     public $panelContent;
 }
+
+class ModelParameters{
+    public $avatar;
+    public $theme;
+    public $defaultTaskListQuery;
+}
+
+class ModelFilters{
+    public $importance;
+    public $chronology;
+    public $status;
+}

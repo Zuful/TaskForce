@@ -12,6 +12,8 @@ include_once(dirname(__FILE__) . "/../helper/Crud.php");
 include_once(dirname(__FILE__) . "/../model/ModelTaskForce.php");
 
 use Helper\Crud;
+use Model\ModelAjaxLoadFiles;
+use Model\ModelFilters;
 use Model\ModelUser;
 use Model\ModelTask;
 
@@ -20,15 +22,8 @@ class Ajax {
     private $_crud;
     private $_pdo;
 
-    private $_queryMoreToLessRecent;
-    private $_queryLessToMoreRecent;
-    private $_queryMoreToLessImportant;
-    private $_queryLessToMoreImportant;
-    private $_queryHighImportanceOnly;
-    private $_queryIntermediaryImportanceOnly;
-    private $_queryLowImportanceOnly;
-
-    private $_defaultTaskListQuery;
+    private $_queryTaskChronology;
+    private $_queryTaskImportance;
 
 
     public function __CONSTRUCT(ModelUser $user){
@@ -36,77 +31,61 @@ class Ajax {
         $this->_pdo = ($GLOBALS["pdo"] instanceof \PDO)?$GLOBALS["pdo"]:null;
         $this->_crud = new Crud($this->_pdo);
 
-        $filterArray = array("Plus au moins important",
-                             "Moins au plus important",
-                             "Du plus récent au plus ancien",
-                             "Du plus ancien au plus récent",
-                             "Importance élevée seulement",
-                             "Importance moyenne seulement",
-                             "Importance basse seulement"
+        $filterImportanceArray = array(
+            0 => "Tous",
+            3 => "Importance élevée seulement",
+            2 => "Importance moyenne seulement",
+            1 => "Importance basse seulement"
+        );
+
+        $filterChronologyArray = array(
+            5 => "Partant de la plus récente créaction",
+            4 => "Partant de la plus ancienne créaction",
+            7 => "Partant de la plus récente date limite",
+            6 => "Partant de la plus ancienne date limite",
+            9 => "Partant de la plus récente résolution",
+            8 => "Partant de la plus ancienne résolution"
         );
     }
 
-    private function _getQueryMoreToLessRecent(){
-        if(is_null($this->_queryMoreToLessRecent)){
-            $this->_queryMoreToLessRecent = "ORDER BY date_creation DESC";
-            return $this->_queryMoreToLessImportant;
-        }
-        else{
-            return $this->_queryMoreToLessImportant;
-        }
+    private function _getQueryTaskByImportance($importance){
+
+        $importance = ($importance != 0)?"AND importance = " . $importance:null;
+        return $importance;
     }
 
-    private function _getQueryLessToMoreRecent(){
-        if(is_null($this->_queryLessToMoreRecent)){
-            $this->_queryLessToMoreRecent = "ORDER BY date_creation ASC";
-            return $this->_queryLessToMoreRecent;
-        }
-        else{
-            return $this->_queryLessToMoreRecent;
-        }
-    }
-/*
-    private function _getQueryMoreToLessImportant(){
-        if(is_null($this->_queryMoreToLessImportant)){
-            $this->_queryLessToMoreRecent = "ORDER BY date_creation ASC";
-            return $this->_queryMoreToLessImportant;
-        }
-        else{
-            return $this->_queryMoreToLessImportant;
-        }
+    private function _getQueryTaskByChronology($chronologyType){
+        $chronology = null;
+            switch($chronologyType){
+                case 4 :
+                    $chronology = "creation_date ASC";
+                    break;
+                case 5 :
+                    $chronology = "creation_date DESC";
+                    break;
+                case 6 :
+                    $chronology = "due_date ASC";
+                    break;
+                case 7 :
+                    $chronology = "due_date DESC";
+                    break;
+                case 8 :
+                    $chronology = "execution_date ASC";
+                    break;
+                case 9 :
+                    $chronology = "execution_date DESC";
+                    break;
+            }
+
+        return "ORDER BY " . $chronology;
     }
 
-    private function _getQueryLessToMoreImportant(){
-        if(is_null($this->_queryLessToMoreRecent)){
-            $this->_queryLessToMoreRecent = "ORDER BY date_creation ASC";
-            return $this->_queryLessToMoreRecent;
-        }
-        else{
-            return $this->_queryLessToMoreRecent;
-        }
-    }
-*/
+    private function _getQueryTaskByStatus($status = null){
+        $status = (!is_null($status))?$status:0;
 
-    private function _getQueryImportantOnly(){
-        if(is_null($this->_queryLessToMoreRecent)){
-            $this->_queryLessToMoreRecent = "ORDER BY date_creation ASC";
-            return $this->_queryLessToMoreRecent;
-        }
-        else{
-            return $this->_queryLessToMoreRecent;
-        }
+        return "AND status = " . $status;
     }
 
-    private function _getQueryIntermediaryImportanceOnly(){
-        if(is_null($this->_queryIntermediaryImportanceOnly)){
-            $this->_queryLessToMoreRecent = "ORDER BY date_creation ASC";
-            return $this->_queryLessToMoreRecent;
-        }
-        else{
-            return $this->_queryLessToMoreRecent;
-        }
-    }
-    
     public function createTask(ModelTask $task){
         $elms = json_encode($task);
         $elms = json_decode($elms, true);
@@ -121,16 +100,21 @@ class Ajax {
     /**
      * Returns the list of all of the tasks of the current user
      *
-     * @param Array $filters
+     * @param ModelFilters $filters
      * @return ModelTask[]
      */
-    public function getTasks(array $filters = null){
+    public function getTasks(ModelFilters $filters){
+        $filterImportance = (!is_null($filters->importance))?$this->_getQueryTaskByImportance($filters->importance):null;
+        $filterChronology = (!is_null($filters->chronology))?$this->_getQueryTaskByChronology($filters->chronology):"ORDER BY creation_date DESC";
+        $filterStatus = (!is_null($filters->status))?$this->_getQueryTaskByStatus($filters->status):null;
+
         $sql = "SELECT * FROM tasks AS T
                 INNER JOIN users_and_tasks AS UAT
                 ON T.id = UAT.task_id
                 WHERE UAT.user_id = :user_id
-                AND status = 0
-                ORDER BY id DESC
+                " . $filterStatus . "
+                " . $filterImportance . "
+                " . $filterChronology . "
                 LIMIT 20";
 
         $req = $this->_pdo->prepare($sql);

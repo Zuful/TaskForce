@@ -8,7 +8,7 @@
 //TODO : Créer le contenu de la page utilisateurs (Liste contacts, Ajouter contacts)
 //TODO : Créer le contenu de la page paramètres (Affichages par défaut)
 //TODO : Après suppression d'une tâche si on fait "précédent" renvoyer sur la page d'index (en gros si on trouve pas l'id de la tache)
-//TODO : Faire en sorte que l'on puisse créer plusieur tâche à la suite sans avoir les informations de la précédente dans le formulaire (js pour vider après création)
+//TODO : Faire en sorte que l'on puisse créer plusieur tâche à la suite sans avoir les informations de la précédente dans le formulaire (js pour vider après création?)
 //TODO : Ajouter une boite de dialogue qui apparait après création, modification ou suppression d'une tâche
 //TODO : Ajouter une boite de confirmation qui apparait avant suppression d'une tâche (ne pas oublier le menu contextuel)
 //TODO : Implémenter le widget datepicker pour les choix des dates
