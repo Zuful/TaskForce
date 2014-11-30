@@ -17,6 +17,7 @@
 //TODO : Mettre TOUT les edit, delete et done en bouton-liens (avec variable GET)
 //TODO : Faire en sorte qu'après un edit, delete ou done on puisse continuer a utiliser le menu contextuel (retirer les variables url)
 //TODO : Revoir le design générale (formulaires, menu latéral, menu contextuel)
+//TODO : Page de création de compte utilisateur
 
 session_start();
 include_once(dirname(__FILE__) . "/class/controller/Controller.php");

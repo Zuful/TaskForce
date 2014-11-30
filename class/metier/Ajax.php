@@ -22,6 +22,9 @@ class Ajax {
     private $_crud;
     private $_pdo;
 
+    private $_tasksTable;
+    private $_usersAndTasks;
+
     private $_queryTaskChronology;
     private $_queryTaskImportance;
 
@@ -30,22 +33,26 @@ class Ajax {
         $this->_user = $user;
         $this->_pdo = ($GLOBALS["pdo"] instanceof \PDO)?$GLOBALS["pdo"]:null;
         $this->_crud = new Crud($this->_pdo);
+    }
 
-        $filterImportanceArray = array(
-            0 => "Tous",
-            3 => "Importance élevée seulement",
-            2 => "Importance moyenne seulement",
-            1 => "Importance basse seulement"
-        );
+    private function _getTaskTable(){
+        if(is_null($this->_tasksTable)){
+            $this->_tasksTable = "task";
+            return $this->_tasksTable;
+        }
+        else{
+            return $this->_tasksTable;
+        }
+    }
 
-        $filterChronologyArray = array(
-            5 => "Partant de la plus récente créaction",
-            4 => "Partant de la plus ancienne créaction",
-            7 => "Partant de la plus récente date limite",
-            6 => "Partant de la plus ancienne date limite",
-            9 => "Partant de la plus récente résolution",
-            8 => "Partant de la plus ancienne résolution"
-        );
+    private function _getUsersAndTasksTable(){
+        if(is_null($this->_usersAndTasks)){
+            $this->_usersAndTasks = "users_and_tasks";
+            return $this->_usersAndTasks;
+        }
+        else{
+            return $this->_usersAndTasks;
+        }
     }
 
     private function _getQueryTaskByImportance($importance){
@@ -78,7 +85,12 @@ class Ajax {
                 break;
         }
 
-        return "ORDER BY " . $chronology;
+        if(!is_null($chronology)){
+            return "ORDER BY " . $chronology;
+        }
+        else{
+            return null;
+        }
     }
 
     private function _getQueryTaskByStatus($status = null){
@@ -119,7 +131,12 @@ class Ajax {
                 " . $filterImportance . "
                 " . $filterChronology . "
                 LIMIT 20";
-
+        /*//Keep this in case we want to debug the query since we never know with the search and filters things
+            if(!empty($_POST)){
+                echo $sql;
+                exit;
+            }
+        */
         $req = $this->_pdo->prepare($sql);
         $req->execute(array(":user_id" => $this->_user->id));
         $req->setFetchMode(\PDO::FETCH_ASSOC);
@@ -224,7 +241,23 @@ class Ajax {
         return $this->_pdo->lastInsertId();
     }
 
-    public function hasRight(){
-        
+    public function hasTaskRight($done = false){
+        $crud = $this->_crud;
+
+        if($done){
+            $crud->setTable($this->_getUsersAndTasksTable());
+            $right = $crud->read(array("user_id" => $this->_user->id));
+        }
+        else{
+            $crud->setTable($this->_getTaskTable());
+            $right = $crud->read(array("id_task_creator" => $this->_user->id));
+        }
+
+        if(!$right){
+            return false;
+        }
+        else{
+            return true;
+        }
     }
 } 

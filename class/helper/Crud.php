@@ -74,13 +74,19 @@ class Crud {
         else{
             $req->execute($where);
         }
+
         $req->setFetchMode(\PDO::FETCH_ASSOC);
-        if($req->rowCount() == 1){
+
+        if($req->rowCount() == 0){
+            return false;
+        }
+        elseif($req->rowCount() == 1){
             $res = $req->fetch();
         }
         else{
             $res = $req->fetchAll();
         }
+
         return $res;
     }
     public function update($id){

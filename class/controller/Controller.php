@@ -75,30 +75,45 @@ class Controller {
                 break;
 
             case "editTask":
-                $task = new ModelTask();
-                $task->hydrate($_POST);
+                if($this->_ajax->hasTaskRight()){
+                    $task = new ModelTask();
+                    $task->hydrate($_POST);
 
-                $this->_ajax->updateTask($task);
+                    $this->_ajax->updateTask($task);
+                }
+                else{
+                    header("Location : " . $this->_ui->indexPage);
+                }
+
                 break;
 
             case "deleteTask":
-                $id = (isset($_GET["id"]))?$_GET["id"]:0;
-                $this->_ajax->deleteTask($id);
+                if($this->_ajax->hasTaskRight()){
+                    $id = (isset($_GET["id"]))?$_GET["id"]:0;
+                    $this->_ajax->deleteTask($id);
+                }
+                else{
+                    header("Location : " . $this->_ui->indexPage);
+                }
+
                 break;
 
             case "doneTask":
-                if(isset($_GET["id"])){//$_GET is checked because it is also possible to realize this operation through a link
-                    $id = $_GET["id"];
-                }
-                elseif(isset($_POST["id"])){
-                    $id = $_POST["id"];
-                }
-                else{
-                    $id = 0;
+                if($this->_ajax->hasTaskRight()){
+                    if(isset($_GET["id"])){//$_GET is checked because it is also possible to realize this operation through a link
+                        $id = $_GET["id"];
+                    }
+                    elseif(isset($_POST["id"])){
+                        $id = $_POST["id"];
+                    }
+                    else{
+                        $id = 0;
+                    }
+
+                    $task = $this->_ajax->getTask($id);
+                    $this->_ajax->doneTask($task);
                 }
 
-                $task = $this->_ajax->getTask($id);
-                $this->_ajax->doneTask($task);
                 break;
 
             case "createUser":
@@ -135,18 +150,21 @@ class Controller {
                 break;
 
             case "doneTask":
-
+                $message = "Tâche '" . $task->name . "' marquée comme faite";
                 break;
 
             case "createUser":
-
+                $message = "Votre compte à bien été créé, un e-mail de confirmation viende vous être envoyé.
+                            Vous devez maintenant confirmer votre compte en cliquant sur le lien que contient l'email.";
                 break;
 
             case "updateUser":
                 //Todo : add an updateUser method
+                $message = "Votre compte à bien été modifié";
                 break;
 
             case "deleteUser":
+                $message = "Votre compte à bien été modifié";
                 //Todo : add a deleteUser method
                 break;
 

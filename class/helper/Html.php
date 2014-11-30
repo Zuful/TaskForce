@@ -100,7 +100,8 @@ class Html {
 
         foreach($list as $liKey => $liVal){
             if(!is_null($positionProp)){
-                $i = 1;
+                $i = (!isset($i))?1:$i;//If $i doesn't exist we set it, else it's equals to its current value;
+
                 if($positionProp == $i){
                     $li .= "<li" . $properties.">" . $liVal ."</li>";
                 }
@@ -197,7 +198,7 @@ class Html {
         return $select;
     }
 
-    public function newFormOption(array $props, array $options){
+    public function newFormOption(array $props, array $options, $positionProp = null){
         $properties = null;
         $option = null;
 
@@ -208,7 +209,20 @@ class Html {
         }
 
         foreach($options as $key => $val){
-            $option .= "<option" . $properties . " value='" . $key . "'>" . $val ."</option>";
+            if(!is_null($positionProp)){
+                $i = (!isset($i))?1:$i;//If $i doesn't exist we set it, else it's equals to its current value;
+                if($i == $positionProp){
+                    $option .= "<option" . $properties . " value='" . $key . "'>" . $val ."</option>";
+                }
+                else{
+                    $option .= "<option value='" . $key . "'>" . $val ."</option>";
+                }
+
+                $i++;
+            }
+            else{
+                $option .= "<option value='" . $key . "'>" . $val ."</option>";
+            }
         }
 
         return $option;
@@ -242,5 +256,17 @@ class Html {
         $fieldset = "<fieldset" . $properties . ">" . $content ."</fieldset>";
 
         return $fieldset;
+    }
+
+    public function newFormLabel(array $props, $content){
+        $properties = null;
+
+        foreach($props as $propKey => $propVal){
+            $properties .= " " . $propKey . "='" . $propVal . "'";
+        }
+
+        $label = "<label" . $properties . ">" . $content ."</label>";
+
+        return $label;
     }
 } 

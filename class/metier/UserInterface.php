@@ -31,7 +31,7 @@ class UserInterface {
     private $_home;
     private $_user;
 
-    private $_indexPage;
+    public $indexPage;
     private $_contactsPage;
     private $_settingsPage;
 
@@ -73,7 +73,7 @@ class UserInterface {
         $this->_footer = $this->_html->newDiv(array("data-role" => "footer"), "<h2>&copy; Yamani ADAME 2014</h2>");
 
         //********************************************************Variables*****************************************************************
-        $this->_indexPage = "index.php";
+        $this->indexPage = "index.php";
         $this->_contactsPage = "contacts.php";
         $this->_settingsPage = "settings.php";
 
@@ -196,8 +196,8 @@ class UserInterface {
             //*******************************************Contextual Menu
             $liDivider = "Choisissez une action";
             $linkEditTask = $this->_html->newA(array("href" => $this->_editTaskPage . "?id=" . $task->id, "data-transition" => "turn"), "Editer");
-            $linkDeleteTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=deleteTask&id=" . $task->id, "data-transition" => "turn"), "Supprimer");
-            $linkDoneTask = $this->_html->newA(array("href" => $this->_indexPage . "?action=doneTask&id=" . $task->id, "data-transition" => "turn"), "Marquer comme fait");
+            $linkDeleteTask = $this->_html->newA(array("href" => $this->indexPage . "?action=deleteTask&id=" . $task->id, "data-transition" => "turn"), "Supprimer");
+            $linkDoneTask = $this->_html->newA(array("href" => $this->indexPage . "?action=doneTask&id=" . $task->id, "data-transition" => "turn"), "Marquer comme fait");
 
             $liContent = array($liDivider, $linkEditTask, $linkDeleteTask, $linkDoneTask);
             $liMenu = $this->_html->newLi(array("data-role" => "list-divider"), $liContent, 1);
@@ -224,6 +224,10 @@ class UserInterface {
         return $ul;
     }
 
+    public function signUpPage(){
+
+    }
+
     public function signInPage(){
         $identifiant = $this->_html->newFormInput(array("type" => "text", "name" => "email"), "Identifiant : ");
         $password = $this->_html->newFormInput(array("type" => "password", "name" => "password"), "Mot de passe : ");
@@ -236,7 +240,7 @@ class UserInterface {
         $fieldContain = $this->_html->newDiv(array("data-role" => "fieldcontain"), $formContent);
         $fieldset = $this->_html->newFieldset(array(), $fieldContain);
 
-        $formProps = array("action" => $this->_indexPage, "method" => "post", "id" => "connexion", "data-transition" => "turn", "data-direction" => "reverse");
+        $formProps = array("action" => $this->indexPage, "method" => "post", "id" => "connexion", "data-transition" => "turn", "data-direction" => "reverse");
         $signInForm = $this->_html->newForm($formProps, $fieldset);
         $title = $this->_html->newH(array(), 1, "Connexion");
 
@@ -288,7 +292,7 @@ class UserInterface {
                                                                       "data-rel" => "back"),
                                                                 "Annuler"
         );
-        $modelDoubleChoiceBox->secondOption = $this->_html->newA(array("href" => $this->_indexPage ."?action=deleteTask?id=" . $task->id,
+        $modelDoubleChoiceBox->secondOption = $this->_html->newA(array("href" => $this->indexPage ."?action=deleteTask?id=" . $task->id,
                                                                        "data-transition" => "turn",
                                                                        "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
                                                                        "data-rel" => "back"),
@@ -297,7 +301,7 @@ class UserInterface {
 
         $doubleChoiceBox = $this->doubleChoiceBox($modelDoubleChoiceBox);
 
-        $formDoneAction = $this->_indexPage . "?action=doneTask";
+        $formDoneAction = $this->indexPage . "?action=doneTask";
         $formDoneSubmit = $this->_html->newFormInput(array("type" => "submit", "value" => "Fait", "data-icon" => "check"));
         $formContent = $formTaskId . $formDoneSubmit;
         $formDone = $this->_html->newForm(array("action" => $formDoneAction,
@@ -322,18 +326,21 @@ class UserInterface {
         $name = $this->_html->newFormInput(array("type" => "text","name" => "name", "placeholder" => "Nom"));
         $description = $this->_html->newTextarea(array("name" => "description", "placeholder" => "Description"), null);
 
-        $choiceImportance = $this->_html->newFormOption(array(), $this->_getTaskImportance());
+        $arrayImportance = $this->_getTaskImportance();
+        array_unshift($arrayImportance, "Choix importance");
+        $choiceImportance = $this->_html->newFormOption(array("data-placeholder" => "true"), $arrayImportance, 1);
+        $selectImportance = $this->_html->newFormSelect(array("name" => "importance", "id" => "selectImportance", "data-native-menu" => "false"), $choiceImportance);
+        $importance = $this->_html->newDiv(array("class" => "ui-field-contain"), $selectImportance);
 
-        $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
         $dueDate = $this->_html->newFormInput(array("type" => "text", "data-role" => "date"));
         $status = $this->_html->newFormInput(array("type" => "hidden", "name" => "status", "value" => 0));
         $id_task_creator = $this->_html->newFormInput(array("type" => "hidden", "name" => "id_task_creator", "value" => $this->_user->id));
         $creationDate = $this->_html->newFormInput(array("type" => "hidden", "name" => "creation_date", "value" => time()));
         $submit = $this->_html->newFormInput(array("type" => "submit", "value" => "Creer"));
 
-        $formContent = $name . $description . $selectImportance . $dueDate . $status . $id_task_creator . $creationDate . $submit;
+        $formContent = $name . $description . $importance . $dueDate . $status . $id_task_creator . $creationDate . $submit;
 
-        $formProps = array("action" => $this->_indexPage . "?action=createTask", "method" => "post", "id" => "createTask", "data-transition" => "turn");
+        $formProps = array("action" => $this->indexPage . "?action=createTask", "method" => "post", "id" => "createTask", "data-transition" => "turn");
         $formCreate = $this->_html->newForm($formProps, $formContent);
 
         $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $formCreate);
@@ -350,9 +357,12 @@ class UserInterface {
         $name = $this->_html->newFormInput(array("type" => "text", "name" => "name", "value" => $task->name), "Nom : ");
         $description = $this->_html->newTextarea(array("name" => "description"), $task->description);
 
-        $choiceImportance = $this->_html->newFormOption(array(), $this->_getTaskImportance());
+        $arrayImportance = $this->_getTaskImportance();
+        array_unshift($arrayImportance, "Choix importance");
+        $choiceImportance = $this->_html->newFormOption(array("data-placeholder" => "true"), $arrayImportance);
+        $selectImportance = $this->_html->newFormSelect(array("name" => "importance", "id" => "selectEditImportance", "data-native-menu" => "false"), $choiceImportance);
+        $importance = $this->_html->newDiv(array("class" => "ui-field-contain"), $selectImportance);
 
-        $selectImportance = $this->_html->newFormSelect(array("name" => "importance"), $choiceImportance);
         $dueDate = $this->_html->newFormInput(array("type" => "text", "data-role" => "date", "value" => $task->due_date));
         $id = $this->_html->newFormInput(array("type" => "hidden", "name" => "id", "value" => $task->id));
         $status = $this->_html->newFormInput(array("type" => "hidden", "name" => "status", "value" => $task->status));
@@ -360,9 +370,9 @@ class UserInterface {
         $creationDate = $this->_html->newFormInput(array("type" => "hidden", "name" => "creation_date", "value" => time()));
         $submit = $this->_html->newFormInput(array("type" => "submit", "value" => "Editer"));
 
-        $formContent = $name . $description . $selectImportance . $dueDate . $status . $idTaskCreator . $id . $creationDate . $submit;
+        $formContent = $name . $description . $importance . $dueDate . $status . $idTaskCreator . $id . $creationDate . $submit;
 
-        $formProps = array("action" => $this->_indexPage  ."?action=editTask", "method" => "post", "id" => "editTask", "data-transition" => "turn");
+        $formProps = array("action" => $this->indexPage  ."?action=editTask", "method" => "post", "id" => "editTask", "data-transition" => "turn");
         $formEdit = $this->_html->newForm($formProps, $formContent);
 
         $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $formEdit);
@@ -398,7 +408,7 @@ class UserInterface {
         $searchInput = $this->_html->newFormInput(array("type" => "text", "name" => "search"));
         $searchSubmit = $this->_html->newFormInput(array("type" => "submit", "data-icon" => "search", "value" => "Recherche"));
         $searchContent = $searchInput . $searchSubmit;
-        $formSearch = $this->_html->newForm(array("action" => $this->_indexPage . "?action=search",
+        $formSearch = $this->_html->newForm(array("action" => $this->indexPage . "?action=search",
                                                   "method" => "post",
                                                   "id" => "search"),
                                             $searchContent
@@ -406,13 +416,14 @@ class UserInterface {
 
         //*****************************************FILTER FORM************************************************
         $filterImportanceArray = array(
-            0 => "Tous",
+            0 => "Filtre par importance",
             3 => "Importance élevée seulement",
             2 => "Importance moyenne seulement",
             1 => "Importance basse seulement"
         );
 
         $filterChronologyArray = array(
+            0 => "Filtre par chronologie",
             5 => "Partant de la plus récente créaction",
             4 => "Partant de la plus ancienne créaction",
             7 => "Partant de la plus récente date limite",
@@ -421,19 +432,21 @@ class UserInterface {
             8 => "Partant de la plus ancienne résolution"
         );
 
-        $filterImportanceOptions = $this->_html->newFormOption(array(), $filterImportanceArray);
-        $filterImportanceSelect = $this->_html->newFormSelect(array("name" => "filterImportance"), $filterImportanceOptions);
+        $filterImportanceOptions = $this->_html->newFormOption(array("data-placeholder" => "true"), $filterImportanceArray, 1);
+        $filterImportanceSelect = $this->_html->newFormSelect(array("name" => "filterImportance", "id" => "selectFilterImportance", "data-native-menu" => "false"), $filterImportanceOptions);
+        $filterImportance = $this->_html->newDiv(array("class" => "ui-field-contain"), $filterImportanceSelect);
 
-        $filterChronologyOptions = $this->_html->newFormOption(array(), $filterChronologyArray);
-        $filterChronologySelect = $this->_html->newFormSelect(array("name" => "filterChronology"), $filterChronologyOptions);
+        $filterChronologyOptions = $this->_html->newFormOption(array("data-placeholder" => "true"), $filterChronologyArray, 1);
+        $filterChronologySelect = $this->_html->newFormSelect(array("name" => "filterChronology", "id" => "selectFilterChronology", "data-native-menu" => "false"), $filterChronologyOptions);
+        $filterChronology = $this->_html->newDiv(array("class" => "ui-field-contain"), $filterChronologySelect);
 
-        $formSelect = $filterImportanceSelect . $filterChronologySelect;
+        $formSelect = $filterImportance . $filterChronology;
 
         //TODO : Ajouter un form switch pour résolu - non résolu avec pour name "filterStatus"
 
         $filterSubmit = $this->_html->newFormInput(array("type" => "submit", "data-icon" => "bullets" , "value" => "Filtrer"));
         $filterContent = $formSelect . $filterSubmit;
-        $formFilters = $this->_html->newForm(array("action" => $this->_indexPage . "?action=filter",
+        $formFilters = $this->_html->newForm(array("action" => $this->indexPage . "?action=filter",
                                                    "method" => "post",
                                                    "id" => "filter"),
                                              $filterContent
