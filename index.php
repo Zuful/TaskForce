@@ -12,13 +12,11 @@
 //TODO : Ajouter une boite de dialogue qui apparait après création, modification ou suppression d'une tâche
 //TODO : Ajouter une boite de confirmation qui apparait avant suppression d'une tâche (ne pas oublier le menu contextuel)
 //TODO : Implémenter le widget datepicker pour les choix des dates
-//TODO : Ajouter un menu latéral à gauche permettant de réaliser les actions ci-dessous
-    //TODO : Ajouter le filtrage à la récupération des taches (Ajax->getTasks(array $filters))
-    //TODO : Ajouter une zone de recherche sur les listes
 //TODO : Veiller à ce que dans un formulaire tout les champs obligatoires soient remplit
 //TODO : Pour toute actions (edit, delete, done) s'assurer que le user a bien les droits
 //TODO : Mettre TOUT les edit, delete et done en bouton-liens (avec variable GET)
 //TODO : Faire en sorte qu'après un edit, delete ou done on puisse continuer a utiliser le menu contextuel (retirer les variables url)
+//TODO : Revoir le design générale (formulaires, menu latéral, menu contextuel)
 
 session_start();
 include_once(dirname(__FILE__) . "/class/controller/Controller.php");

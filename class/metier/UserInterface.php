@@ -173,6 +173,7 @@ class UserInterface {
 
     public function getTaskList(){
         $modelFilter = new ModelFilters();
+        $modelFilter->search = (isset($_POST["search"]))?$_POST["search"]:null;
         $modelFilter->importance = (isset($_POST["filterImportance"]))?$_POST["filterImportance"]:null;
         $modelFilter->chronology = (isset($_POST["filterChronology"]))?$_POST["filterChronology"]:null;
         $modelFilter->status = (isset($_POST["filterStatus"]))?$_POST["filterStatus"]:null;

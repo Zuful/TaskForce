@@ -56,26 +56,27 @@ class Ajax {
 
     private function _getQueryTaskByChronology($chronologyType){
         $chronology = null;
-            switch($chronologyType){
-                case 4 :
-                    $chronology = "creation_date ASC";
-                    break;
-                case 5 :
-                    $chronology = "creation_date DESC";
-                    break;
-                case 6 :
-                    $chronology = "due_date ASC";
-                    break;
-                case 7 :
-                    $chronology = "due_date DESC";
-                    break;
-                case 8 :
-                    $chronology = "execution_date ASC";
-                    break;
-                case 9 :
-                    $chronology = "execution_date DESC";
-                    break;
-            }
+
+        switch($chronologyType){
+            case 4 :
+                $chronology = "creation_date ASC";
+                break;
+            case 5 :
+                $chronology = "creation_date DESC";
+                break;
+            case 6 :
+                $chronology = "due_date ASC";
+                break;
+            case 7 :
+                $chronology = "due_date DESC";
+                break;
+            case 8 :
+                $chronology = "execution_date ASC";
+                break;
+            case 9 :
+                $chronology = "execution_date DESC";
+                break;
+        }
 
         return "ORDER BY " . $chronology;
     }
@@ -104,6 +105,7 @@ class Ajax {
      * @return ModelTask[]
      */
     public function getTasks(ModelFilters $filters){
+        $filterSearch = (!is_null($filters->search))?"AND (name LIKE '%" . $filters->search . "%' OR description LIKE '%". $filters->search ."%')":null;
         $filterImportance = (!is_null($filters->importance))?$this->_getQueryTaskByImportance($filters->importance):null;
         $filterChronology = (!is_null($filters->chronology))?$this->_getQueryTaskByChronology($filters->chronology):"ORDER BY creation_date DESC";
         $filterStatus = (!is_null($filters->status))?$this->_getQueryTaskByStatus($filters->status):null;
@@ -112,6 +114,7 @@ class Ajax {
                 INNER JOIN users_and_tasks AS UAT
                 ON T.id = UAT.task_id
                 WHERE UAT.user_id = :user_id
+                " . $filterSearch . "
                 " . $filterStatus . "
                 " . $filterImportance . "
                 " . $filterChronology . "
@@ -221,4 +224,7 @@ class Ajax {
         return $this->_pdo->lastInsertId();
     }
 
+    public function hasRight(){
+        
+    }
 } 

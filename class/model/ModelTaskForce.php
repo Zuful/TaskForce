@@ -101,6 +101,7 @@ class ModelParameters{
 }
 
 class ModelFilters{
+    public $search;
     public $importance;
     public $chronology;
     public $status;
