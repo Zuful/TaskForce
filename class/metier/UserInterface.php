@@ -225,7 +225,31 @@ class UserInterface {
     }
 
     public function signUpPage(){
+        $name = $this->_html->newFormInput((array("type" => "text", "name" => "name", "placeholder" => "Nom")));
+        $firstName = $this->_html->newFormInput(array("type" => "text", "name" => "firstname", "placeholder" => "Prénom"));
+        $pseudo = $this->_html->newFormInput(array("type" => "text", "name" => "pseudo", "placeholder" => "Pseudo"));
+        $email = $this->_html->newFormInput(array("type" => "text", "name" => "email", "placeholder" => "Adresse e-mail"));
+        $password = $this->_html->newFormInput(array("type" => "password", "name" => "password", "placeholder" => "Mot de passe"));
 
+        $action = $this->_html->newFormInput(array("type" => "hidden", "name" => "action", "value" => "createUser"));
+        $creationDate = $this->_html->newFormInput(array("type" => "hidden", "name" => "creaction_date", "value" => time()));
+        $active = $this->_html->newFormInput(array("type" => "hidden", "name" => "active", "value" => 0));
+
+        $submit = $this->_html->newFormInput(array("type" => "submit", "value" => "Valider"));
+
+        $formLi = $this->_html->newLi(array("class" => "ui-field-contain"), array($name, $firstName, $pseudo, $email, $password, $submit));
+        $formUl = $this->_html->newUl(array("data-role" => "listview",
+                                            "data-inset" => "true"),
+                                      $formLi
+        );
+
+        $hiddenInputs = $action . $creationDate . $active;
+
+        $formSignUp = $this->_html->newForm(array("action" => $this->_signUpPage, "method" => "post", "id" => "signUp"), $formUl . $hiddenInputs);
+
+        $signUpPage = $this->_header . $formSignUp . $this->_footer;
+
+        return $signUpPage;
     }
 
     public function signInPage(){

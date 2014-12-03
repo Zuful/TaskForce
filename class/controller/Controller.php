@@ -27,15 +27,24 @@ class Controller {
     private $_isSignedIn;
 
     public function __CONSTRUCT(){
-        if(isset($_POST["posted"]) && $_POST["posted"] == 1){
+        if(isset($_POST["posted"]) && $_POST["posted"] == 1){//The user is signin in
             $account = new Account();
             $userInfos = $account->signIn("users", array("email" => $_POST["email"], "password" => $_POST["password"]), true);
             $this->_user = new ModelUser();
             $this->_user->hydrate($userInfos);
+
+            if($this->_user->active == 0){
+                return $this->userNotification("nonActive", $this->_user);
+            }
+
             $_SESSION["user"] = serialize($this->_user);
         }
-        elseif(isset($_SESSION["user"])){
+        elseif(isset($_SESSION["user"])){//The user is already signed in
             $this->_user = unserialize($_SESSION["user"]);
+        }
+        elseif(isset($_POST["action"]) && $_POST["action"] == "createUser"){//The user just created his account
+            $this->_user = new ModelUser();
+            $this->_user->hydrate($_POST);
         }
         else{
             header("Location:signIn.php");
@@ -117,7 +126,7 @@ class Controller {
                 break;
 
             case "createUser":
-
+                $this->_ajax->createUser($this->_user);
                 break;
 
             case "updateUser":
@@ -134,8 +143,8 @@ class Controller {
         return false;
     }
 
-    public function actionSuccess($action, ModelTask $task){
-        switch($action){
+    public function taskNotification($event, ModelTask $task){
+        switch($event){
             case "createTask":
                 $message = "Nouvelle tâche '" . $task->name . "' créée";
 
@@ -172,5 +181,22 @@ class Controller {
                 return false;
         }
         return false;
+    }
+
+    public function userNotification($event, ModelUser $user){
+        $message = null;
+
+        switch($event){
+            case "nonActive":
+                $message = "Le compte utilisateur '" . $user->firstname . " " . $user->name . "' n'a pas encore été confirmé.
+                            Pour confirmer un compte rendez-vous sur le mail envoyé à l'adresse indiquée lors de sa création
+                            et cliquez sur le lien qui s'y trouve";
+                break;
+
+            default:
+                return false;
+        }
+
+        return $message;
     }
 } 

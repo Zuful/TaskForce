@@ -22,17 +22,24 @@ class Ajax {
     private $_crud;
     private $_pdo;
 
+    private $_usersTable;
     private $_tasksTable;
-    private $_usersAndTasks;
-
-    private $_queryTaskChronology;
-    private $_queryTaskImportance;
-
+    private $_usersAndTasksTable;
 
     public function __CONSTRUCT(ModelUser $user){
         $this->_user = $user;
         $this->_pdo = ($GLOBALS["pdo"] instanceof \PDO)?$GLOBALS["pdo"]:null;
         $this->_crud = new Crud($this->_pdo);
+    }
+
+    private function _getUserTable(){
+        if(is_null($this->_usersTable)){
+            $this->_usersTable = "users";
+            return $this->_usersTable;
+        }
+        else{
+            return $this->_usersTable;
+        }
     }
 
     private function _getTaskTable(){
@@ -46,17 +53,16 @@ class Ajax {
     }
 
     private function _getUsersAndTasksTable(){
-        if(is_null($this->_usersAndTasks)){
-            $this->_usersAndTasks = "users_and_tasks";
-            return $this->_usersAndTasks;
+        if(is_null($this->_usersAndTasksTable)){
+            $this->_usersAndTasksTable = "users_and_tasks";
+            return $this->_usersAndTasksTable;
         }
         else{
-            return $this->_usersAndTasks;
+            return $this->_usersAndTasksTable;
         }
     }
 
     private function _getQueryTaskByImportance($importance){
-
         $importance = ($importance != 0)?"AND importance = " . $importance:null;
         return $importance;
     }
@@ -97,6 +103,17 @@ class Ajax {
         $status = (!is_null($status))?$status:0;
 
         return "AND status = " . $status;
+    }
+
+
+    public function createUser(ModelUser $user){
+        $user = json_encode($user);
+        $user = json_decode($user, true);
+
+        $this->_crud->setTable($this->_getUserTable());
+        $this->_crud->setElms($user);
+
+        return $this->_crud->create(); //Return a boolean
     }
 
     public function createTask(ModelTask $task){

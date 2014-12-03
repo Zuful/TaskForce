@@ -15,6 +15,7 @@ class ModelUser {
     public $name;
     public $firstname;
     public $email;
+    public $active;
     public $creation_date;
     public $last_connexion;
 
@@ -24,6 +25,7 @@ class ModelUser {
         $this->name = (isset($infos["name"]))?$infos["name"]:null;
         $this->firstname = (isset($infos["firstname"]))?$infos["firstname"]:null;
         $this->email = (isset($infos["email"]))?$infos["email"]:null;
+        $this->active = (isset($info["active"]))?$info["active"]:null;
         $this->creation_date = (isset($infos["creation_date"]))?$infos["creation_date"]:null;
         $this->last_connexion = (isset($infos["last_connexion"]))?$infos["last_connexion"]:null;
     }

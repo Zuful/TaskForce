@@ -27,7 +27,6 @@ use Controller\Controller;
 $ctrl = new Controller();
 if(isset($_GET["action"])){
     if($ctrl->action($_GET["action"])){
-
         //header("Location : index.php");
         //Afficher un message de confirmation
     }
@@ -42,8 +41,6 @@ if(isset($_GET["action"])){
     <?php echo $ctrl->getUi()->getHead(); ?>
 </head>
 <body>
-<?php
-    echo $ctrl->getUi()->homePage();
-?>
+    <?php echo $ctrl->getUi()->homePage(); ?>
 </body>
 </html>
