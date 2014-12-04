@@ -98,6 +98,7 @@ class Controller {
 
             case "deleteTask":
                 if($this->_ajax->hasTaskRight()){
+
                     $id = (isset($_GET["id"]))?$_GET["id"]:0;
                     $this->_ajax->deleteTask($id);
                 }
@@ -108,12 +109,9 @@ class Controller {
                 break;
 
             case "doneTask":
-                if($this->_ajax->hasTaskRight()){
+                if($this->_ajax->hasTaskRight(true)){
                     if(isset($_GET["id"])){//$_GET is checked because it is also possible to realize this operation through a link
                         $id = $_GET["id"];
-                    }
-                    elseif(isset($_POST["id"])){
-                        $id = $_POST["id"];
                     }
                     else{
                         $id = 0;

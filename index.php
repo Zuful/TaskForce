@@ -13,11 +13,11 @@
 //TODO : Ajouter une boite de confirmation qui apparait avant suppression d'une tâche (ne pas oublier le menu contextuel)
 //TODO : Implémenter le widget datepicker pour les choix des dates
 //TODO : Veiller à ce que dans un formulaire tout les champs obligatoires soient remplit
-//TODO : Pour toute actions (edit, delete, done) s'assurer que le user a bien les droits
 //TODO : Mettre TOUT les edit, delete et done en bouton-liens (avec variable GET)
+//TODO : Ajouter un switch pour le filtre par status
 //TODO : Faire en sorte qu'après un edit, delete ou done on puisse continuer a utiliser le menu contextuel (retirer les variables url)
 //TODO : Revoir le design générale (formulaires, menu latéral, menu contextuel)
-//TODO : Page de création de compte utilisateur
+//TODO : Faire des redirections lorsqu'on est mal connecté ou qu'on cherche à editer, supprimer ou marquer comme fait une tâche sur laquelle on a pas de droits (aucun message d'erreur php ne doit être vu)
 
 session_start();
 include_once(dirname(__FILE__) . "/class/controller/Controller.php");

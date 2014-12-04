@@ -44,7 +44,7 @@ class Ajax {
 
     private function _getTaskTable(){
         if(is_null($this->_tasksTable)){
-            $this->_tasksTable = "task";
+            $this->_tasksTable = "tasks";
             return $this->_tasksTable;
         }
         else{
@@ -137,7 +137,7 @@ class Ajax {
         $filterSearch = (!is_null($filters->search))?"AND (name LIKE '%" . $filters->search . "%' OR description LIKE '%". $filters->search ."%')":null;
         $filterImportance = (!is_null($filters->importance))?$this->_getQueryTaskByImportance($filters->importance):null;
         $filterChronology = (!is_null($filters->chronology))?$this->_getQueryTaskByChronology($filters->chronology):"ORDER BY creation_date DESC";
-        $filterStatus = (!is_null($filters->status))?$this->_getQueryTaskByStatus($filters->status):null;
+        $filterStatus = (!is_null($filters->status))?$this->_getQueryTaskByStatus($filters->status):"AND status = " . 0;
 
         $sql = "SELECT * FROM tasks AS T
                 INNER JOIN users_and_tasks AS UAT
@@ -263,10 +263,12 @@ class Ajax {
 
         if($done){
             $crud->setTable($this->_getUsersAndTasksTable());
+            $crud->setElms(array("*"));
             $right = $crud->read(array("user_id" => $this->_user->id));
         }
         else{
             $crud->setTable($this->_getTaskTable());
+            $crud->setElms(array("*"));
             $right = $crud->read(array("id_task_creator" => $this->_user->id));
         }
 
