@@ -15,6 +15,7 @@ class ModelUser {
     public $name;
     public $firstname;
     public $email;
+    public $password;
     public $active;
     public $creation_date;
     public $last_connexion;
@@ -25,7 +26,8 @@ class ModelUser {
         $this->name = (isset($infos["name"]))?$infos["name"]:null;
         $this->firstname = (isset($infos["firstname"]))?$infos["firstname"]:null;
         $this->email = (isset($infos["email"]))?$infos["email"]:null;
-        $this->active = (isset($info["active"]))?$info["active"]:null;
+        $this->password = (isset($infos["password"]))?$infos["password"]:null;
+        $this->active = (isset($infos["active"]))?$infos["active"]:null;
         $this->creation_date = (isset($infos["creation_date"]))?$infos["creation_date"]:null;
         $this->last_connexion = (isset($infos["last_connexion"]))?$infos["last_connexion"]:null;
     }
@@ -43,17 +45,17 @@ class ModelTask {
     public $execution_date;
     public $creation_date;
 
-    public function hydrate(array $info){
-        $this->id = (isset($info["id"]))?$info["id"]:null;
-        $this->id_task_creator = (isset($info["id_task_creator"]))?$info["id_task_creator"]:null;
-        $this->id_task_executor = (isset($info["id_task_executor"]))?$info["id_task_executor"]:null;
-        $this->name = (isset($info["name"]))?$info["name"]:null;
-        $this->description = (isset($info["description"]))?$info["description"]:null;
-        $this->importance = (isset($info["importance"]))?$info["importance"]:null;
-        $this->status = (isset($info["status"]))?$info["status"]:null;
-        $this->due_date = (isset($info["due_date"]))?$info["due_date"]:null;
-        $this->execution_date = (isset($info["execution_date"]))?$info["execution_date"]:null;
-        $this->creation_date = (isset($info["creation_date"]))?$info["creation_date"]:null;
+    public function hydrate(array $infos){
+        $this->id = (isset($infos["id"]))?$infos["id"]:null;
+        $this->id_task_creator = (isset($infos["id_task_creator"]))?$infos["id_task_creator"]:null;
+        $this->id_task_executor = (isset($infos["id_task_executor"]))?$infos["id_task_executor"]:null;
+        $this->name = (isset($infos["name"]))?$infos["name"]:null;
+        $this->description = (isset($infos["description"]))?$infos["description"]:null;
+        $this->importance = (isset($infos["importance"]))?$infos["importance"]:null;
+        $this->status = (isset($infos["status"]))?$infos["status"]:null;
+        $this->due_date = (isset($infos["due_date"]))?$infos["due_date"]:null;
+        $this->execution_date = (isset($infos["execution_date"]))?$infos["execution_date"]:null;
+        $this->creation_date = (isset($infos["creation_date"]))?$infos["creation_date"]:null;
     }
 }
 

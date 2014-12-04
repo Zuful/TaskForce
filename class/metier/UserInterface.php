@@ -246,8 +246,9 @@ class UserInterface {
         $hiddenInputs = $action . $creationDate . $active;
 
         $formSignUp = $this->_html->newForm(array("action" => $this->_signUpPage, "method" => "post", "id" => "signUp"), $formUl . $hiddenInputs);
-
-        $signUpPage = $this->_header . $formSignUp . $this->_footer;
+        $title = $this->_html->newH(array(), 1, "Création de compte");
+        $uiContent = $title . $formSignUp;
+        $signUpPage = $this->_header . $uiContent . $this->_footer;
 
         return $signUpPage;
     }
@@ -268,7 +269,10 @@ class UserInterface {
         $signInForm = $this->_html->newForm($formProps, $fieldset);
         $title = $this->_html->newH(array(), 1, "Connexion");
 
-        $uiContent = $title . "Connectez vous et accédez au service<br><br>" . $signInForm;
+        $signUpBtn = $this->_html->newButton(array(), "Créer un compte");
+        $signUpLink = $this->_html->newA(array("href" => $this->_signUpPage, "data-transition" => "turn"), $signUpBtn);
+
+        $uiContent = $title . "Connectez vous et accédez au service<br><br>" . $signInForm . $signUpLink;
         $uiContent = $this->_html->newDiv(array("data-role" => "ui-content"), $uiContent);
 
         $signInPage = $this->_header . $uiContent . $this->_footer;
