@@ -286,23 +286,19 @@ class UserInterface {
 
         $name = $this->_html->newH(array(), 2,$task->name);
         $basicInfos = "Date limite : " . $task->due_date . "<br>
-                       Importance : " . $this->_getTaskImportance($task->importance);
+                       Importance : " . $this->_getTaskImportance($task->importance) . "<br>
+                       Date de création : " . date("d/M/Y", $task->creation_date);
         $basicInfos = $this->_html->newP(array(), $basicInfos);
         $description = $this->_html->newP(array(), $task->description);
 
-        $formEditAction = $this->_editTaskPage . "?id=" . $task->id;
-        $formEditSubmit = $this->_html->newFormInput(array("type" => "submit", "value" => "Editer", "data-icon" => "edit"));
-        $formEdit = $this->_html->newForm(array("action" => $formEditAction,
-                                                "method" => "post",
-                                                "id" => $formEditAction,
-                                                "data-transition" => "turn",
-                                                "data-direction" => "reverse"),
-                                          $formEditSubmit
+        $editBtn = $this->_html->newButton(array("data-icon" => "edit"), "Editer");
+        $editLink = $this->_html->newA(array("href" => $this->_editTaskPage . "?id=" . $task->id,
+                                             "data-transition" => "turn",
+                                             "data-direction" => "reverse"),
+                                       $editBtn
         );
 
-        $formTaskId = $this->_html->newFormInput(array("type" => "hidden", "value" => $task->id, "name" => "id"));
-
-        $deleteBtn = $this->_html->newButton(array("data-icon" => "delete"), "Supprimer");
+        $deleteBtn = $this->_html->newButton(array("data-icon" => "delete", "data-transition" => "turn", "data-direction" => ""), "Supprimer");
         $deleteLink = $this->_html->newA(array("href" => "#confirmDelete" . $task->id,
                                                "data-rel" => "popup",
                                                "data-position-to" => "window",
@@ -310,38 +306,34 @@ class UserInterface {
                                                /*"class" => "ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b"*/),
                                         $deleteBtn
         );
+
+        $doneBtn = $this->_html->newButton(array("data-icon" => "check"), "Fait");
+        $doneLink = $this->_html->newA(array("href" => $this->indexPage . "?action=doneTask&id=" . $task->id,
+                                             "data-transition" => "turn",
+                                             "data-direction" => "reverse"),
+                                      $doneBtn
+        );
+
         $modelDoubleChoiceBox = new ModelDoubleChoiceBox();
         $modelDoubleChoiceBox->title = "Supprimer '" .$task->name."'?";
         $modelDoubleChoiceBox->idTag = "confirmDelete" . $task->id;
         $modelDoubleChoiceBox->mainMessage = "Etes-vous certain de vouloir supprimer la tâche '" . $task->name . "'?";
         $modelDoubleChoiceBox->subMessage = "Toute suppression est irréversible.";
         $modelDoubleChoiceBox->firstOption = $this->_html->newA(array("href" => "#",
-                                                                      "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
-                                                                      "data-rel" => "back"),
-                                                                "Annuler"
+                "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
+                "data-rel" => "back"),
+            "Annuler"
         );
         $modelDoubleChoiceBox->secondOption = $this->_html->newA(array("href" => $this->indexPage ."?action=deleteTask?id=" . $task->id,
-                                                                       "data-transition" => "turn",
-                                                                       "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
-                                                                       "data-rel" => "back"),
-                                                                 "Confirmer"
+                "data-transition" => "turn",
+                "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
+                "data-rel" => "back"),
+            "Confirmer"
         );
 
         $doubleChoiceBox = $this->doubleChoiceBox($modelDoubleChoiceBox);
 
-        $formDoneAction = $this->indexPage . "?action=doneTask";
-        $formDoneSubmit = $this->_html->newFormInput(array("type" => "submit", "value" => "Fait", "data-icon" => "check"));
-        $formContent = $formTaskId . $formDoneSubmit;
-        $formDone = $this->_html->newForm(array("action" => $formDoneAction,
-                                                "method" => "post",
-                                                "id" => $formDoneAction,
-                                                "data-transition" => "turn",
-                                                "data-direction" => "reverse"),
-                                          $formContent
-        );
-
-
-        $uiContent = $name . $basicInfos . $description . $formEdit . $deleteLink . $doubleChoiceBox . $formDone ;
+        $uiContent = $name . $basicInfos . $description . $editLink . $deleteLink . $doubleChoiceBox . $doneLink ;
         $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $uiContent);
 
         $pageContent = $this->_header . $uiContent . $this->_footer;
@@ -442,7 +434,7 @@ class UserInterface {
                                             $searchContent
         );
 
-        //*****************************************FILTER FORM************************************************
+        //*****************************************IMPORTANCE AND CHRONOLOGY FILTER FORM************************************************
         $filterImportanceArray = array(
             0 => "Filtre par importance",
             3 => "Importance élevée seulement",
@@ -468,7 +460,16 @@ class UserInterface {
         $filterChronologySelect = $this->_html->newFormSelect(array("name" => "filterChronology", "id" => "selectFilterChronology", "data-native-menu" => "false"), $filterChronologyOptions);
         $filterChronology = $this->_html->newDiv(array("class" => "ui-field-contain"), $filterChronologySelect);
 
-        $formSelect = $filterImportance . $filterChronology;
+
+        //**************************************************STATUS FILTER FORM***************************************************
+
+        $filterStatusOption = $this->_html->newFormOption(array(), array("A faire", "Fait"));
+        $filterStatusSelect = $this->_html->newFormSelect(array("id" => "flip-select",
+                                                                "name" => "filterStatus",
+                                                                "data-role" => "flipswitch"),
+                                                          $filterStatusOption
+        );
+        $formSelect = $filterImportance . $filterChronology . $filterStatusSelect;
 
         //TODO : Ajouter un form switch pour résolu - non résolu avec pour name "filterStatus"
 
