@@ -200,7 +200,6 @@ class UserInterface {
                                                      "data-split-icon" => "gear",
                                                      "data-rel" => "popup",
                                                      "data-transition" => "turn",
-                                                     "data-theme" => "g",
                                                      "class" => "ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a"),
                                                "Options");
 
@@ -210,7 +209,7 @@ class UserInterface {
         }
 
         $lis = $this->_html->newLi(array(), $list);
-        $ul = $this->_html->newUl(array("data-role" => "listview", "data-split-icon" => "check", "data-theme" => "a","data-inset" => "true"), $lis);
+        $ul = $this->_html->newUl(array("data-role" => "listview", "data-split-icon" => "check", "data-theme" => "g","data-inset" => "true"), $lis);
 
         return $ul;
     }
