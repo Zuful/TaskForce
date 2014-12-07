@@ -54,7 +54,11 @@ class UserInterface {
         //********************************************************Head*****************************************************************
         $this->_head .= $this->_html->newTitle("Home");
         $this->_head .= $this->_html->newMeta(array("charset" => "UTF-8"));
+        $this->_head .= $this->_html->newMeta(array("name" => "viewport", "content" => "width=device-width, initial-scale=1"));
+        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/themes/taskforce.min.css"));
+        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/themes/jquery.mobile.icons.min.css"));
         $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile-1.4.5.min.css"));
+        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/css.css"));
         $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.min.js"));
         $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.mobile-1.4.5.min.js"));
 
@@ -67,10 +71,10 @@ class UserInterface {
         $nav = $this->_html->newUl(array(), $list);
         $navBar = $this->_html->newDiv(array("data-role" => "navbar"), $nav);
 
-        $this->_header = $this->_html->newDiv(array("data-role" => "header"), $navBar);
+        $this->_header = $this->_html->newDiv(array("data-role" => "header", "class" => "header"), $navBar);
 
         //********************************************************Footer*****************************************************************
-        $this->_footer = $this->_html->newDiv(array("data-role" => "footer"), "<h2>&copy; Yamani ADAME 2014</h2>");
+        $this->_footer = $this->_html->newDiv(array("data-role" => "footer" , "class" => "footer"), "<h2>&copy; Yamani ADAME 2014</h2>");
 
         //********************************************************Variables*****************************************************************
         $this->indexPage = "index.php";
@@ -91,9 +95,6 @@ class UserInterface {
     }
 
     public function getTaskHead(){
-        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.css"));
-        $this->_head .= $this->_html->newLinkTag(array("rel" => "stylesheet", "href" => "css/jquery.mobile.datepicker.theme.css"));
-        $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.min.js"));//TODO : Chopper le js de datepicker
 
         return $this->_head;
     }
@@ -131,18 +132,6 @@ class UserInterface {
         return $arrayImportance;
     }
 
-    private function _getConfirmDelete(){
-        $ajaxLoadFiles = $this->_getAjaxLoadFiles();
-        if(is_null($ajaxLoadFiles->confirmDelete)){
-            $ajaxLoadFiles->confirmDelete = "ajax/confirmDelete.php";
-
-            return $ajaxLoadFiles->confirmDelete;
-        }
-        else{
-            return $ajaxLoadFiles->confirmDelete;
-        }
-    }
-
     public function homePage(){
         if(is_null($this->_home)){
             $leftMenu = $this->getLeftMenu();
@@ -151,7 +140,7 @@ class UserInterface {
             $leftMenuLink = $this->_html->newA(array("href" => "#leftMenu"), $leftMenuBtn);
             $taskList = $this->getTaskList();
 
-            $btnNewTask = $this->_html->newButton(array("data-icon" => "plus"), "Nouvelle tache");
+            $btnNewTask = $this->_html->newButton(array("data-icon" => "plus", "data-theme" => "e"), "Nouvelle tache");
             $linkNewTask = $this->_html->newA(array("href" => $this->_createTaskPage,
                                                     "data-transition" => "turn",
                                                     "data-direction" => "reverse"),
@@ -162,7 +151,7 @@ class UserInterface {
 
             $page = $leftMenu . $this->_header . $uiContent . $this->_footer;
 
-            $this->_home = $this->_html->newDiv(array("data-role" => "page", "id" => "home"), $page);
+            $this->_home = $this->_html->newDiv(array("data-role" => "page", "id" => "home", "data-theme" => "c"), $page);
 
             return $this->_home;
         }
@@ -204,12 +193,14 @@ class UserInterface {
             $modelContextualMenu = new ModelContextualMenu();
             $modelContextualMenu->liMenu = $liMenu;
             $modelContextualMenu->idTag = "contextualMenu_" . $task->id;
+            $modelContextualMenu->theme = "g";
 
             $contextualMenu = $this->contextualMenu($modelContextualMenu);
             $linkTaskContextualMenu = $this->_html->newA(array("href" => "#" . $modelContextualMenu->idTag,
                                                      "data-split-icon" => "gear",
                                                      "data-rel" => "popup",
                                                      "data-transition" => "turn",
+                                                     "data-theme" => "g",
                                                      "class" => "ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a"),
                                                "Options");
 
@@ -219,11 +210,12 @@ class UserInterface {
         }
 
         $lis = $this->_html->newLi(array(), $list);
-        $ul = $this->_html->newUl(array("data-role" => "listview", "data-split-icon" => "check", "data-inset" => "true"), $lis);
+        $ul = $this->_html->newUl(array("data-role" => "listview", "data-split-icon" => "check", "data-theme" => "a","data-inset" => "true"), $lis);
 
         return $ul;
     }
 
+    //************************************************************************SIGN UP***************************************************************/
     public function signUpPage(){
         $name = $this->_html->newFormInput((array("type" => "text", "name" => "name", "placeholder" => "Nom")));
         $firstName = $this->_html->newFormInput(array("type" => "text", "name" => "firstname", "placeholder" => "Prénom"));
@@ -253,6 +245,7 @@ class UserInterface {
         return $signUpPage;
     }
 
+    //************************************************************************SIGN IN***************************************************************/
     public function signInPage(){
         $identifiant = $this->_html->newFormInput(array("type" => "text", "name" => "email"), "Identifiant : ");
         $password = $this->_html->newFormInput(array("type" => "password", "name" => "password"), "Mot de passe : ");
@@ -269,18 +262,19 @@ class UserInterface {
         $signInForm = $this->_html->newForm($formProps, $fieldset);
         $title = $this->_html->newH(array(), 1, "Connexion");
 
-        $signUpBtn = $this->_html->newButton(array(), "Créer un compte");
+        $signUpBtn = $this->_html->newButton(array("data-theme" => ""), "Créer un compte");
         $signUpLink = $this->_html->newA(array("href" => $this->_signUpPage, "data-transition" => "turn"), $signUpBtn);
 
         $uiContent = $title . "Connectez vous et accédez au service<br><br>" . $signInForm . $signUpLink;
         $uiContent = $this->_html->newDiv(array("data-role" => "ui-content"), $uiContent);
 
         $signInPage = $this->_header . $uiContent . $this->_footer;
-        $signInPage = $this->_html->newDiv(array("data-role" => "page", "id" => "signIn"), $signInPage);
+        $signInPage = $this->_html->newDiv(array("data-role" => "page", "data-theme" => "c", "id" => "signIn"), $signInPage);
 
         return $signInPage;
     }
 
+    //************************************************************************SEE TASK***************************************************************/
     public function seeTaskPage($taskId){
         $task = $this->_ajax->getTask($taskId);
 
@@ -291,14 +285,14 @@ class UserInterface {
         $basicInfos = $this->_html->newP(array(), $basicInfos);
         $description = $this->_html->newP(array(), $task->description);
 
-        $editBtn = $this->_html->newButton(array("data-icon" => "edit"), "Editer");
+        $editBtn = $this->_html->newButton(array("data-icon" => "edit", "data-theme" => "d", "class" => "edit"), "Editer");
         $editLink = $this->_html->newA(array("href" => $this->_editTaskPage . "?id=" . $task->id,
                                              "data-transition" => "turn",
                                              "data-direction" => "reverse"),
                                        $editBtn
         );
 
-        $deleteBtn = $this->_html->newButton(array("data-icon" => "delete", "data-transition" => "turn", "data-direction" => ""), "Supprimer");
+        $deleteBtn = $this->_html->newButton(array("data-icon" => "delete", "data-theme" => "h", "class" => "delete"), "Supprimer");
         $deleteLink = $this->_html->newA(array("href" => "#confirmDelete" . $task->id,
                                                "data-rel" => "popup",
                                                "data-position-to" => "window",
@@ -307,7 +301,7 @@ class UserInterface {
                                         $deleteBtn
         );
 
-        $doneBtn = $this->_html->newButton(array("data-icon" => "check"), "Fait");
+        $doneBtn = $this->_html->newButton(array("data-icon" => "check", "data-theme" => "e", "class" => "validation"), "Fait");
         $doneLink = $this->_html->newA(array("href" => $this->indexPage . "?action=doneTask&id=" . $task->id,
                                              "data-transition" => "turn",
                                              "data-direction" => "reverse"),
@@ -337,11 +331,12 @@ class UserInterface {
         $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $uiContent);
 
         $pageContent = $this->_header . $uiContent . $this->_footer;
-        $taskPage = $this->_html->newDiv(array("data-role" => "page"), $pageContent);
+        $taskPage = $this->_html->newDiv(array("data-role" => "page", "data-theme" => "c"), $pageContent);
 
         return $taskPage;
     }
 
+    //************************************************************************ CREATE TASK ***************************************************************/
     public function createTaskPage(){
         $name = $this->_html->newFormInput(array("type" => "text","name" => "name", "placeholder" => "Nom"));
         $description = $this->_html->newTextarea(array("name" => "description", "placeholder" => "Description"), null);
@@ -349,14 +344,14 @@ class UserInterface {
         $arrayImportance = $this->_getTaskImportance();
         array_unshift($arrayImportance, "Choix importance");
         $choiceImportance = $this->_html->newFormOption(array("data-placeholder" => "true"), $arrayImportance, 1);
-        $selectImportance = $this->_html->newFormSelect(array("name" => "importance", "id" => "selectImportance", "data-native-menu" => "false"), $choiceImportance);
+        $selectImportance = $this->_html->newFormSelect(array("name" => "importance", "id" => "selectImportance", "data-native-menu" => "false", "data-theme" => "c"), $choiceImportance);
         $importance = $this->_html->newDiv(array("class" => "ui-field-contain"), $selectImportance);
 
         $dueDate = $this->_html->newFormInput(array("type" => "text", "data-role" => "date"));
         $status = $this->_html->newFormInput(array("type" => "hidden", "name" => "status", "value" => 0));
         $id_task_creator = $this->_html->newFormInput(array("type" => "hidden", "name" => "id_task_creator", "value" => $this->_user->id));
         $creationDate = $this->_html->newFormInput(array("type" => "hidden", "name" => "creation_date", "value" => time()));
-        $submit = $this->_html->newFormInput(array("type" => "submit", "value" => "Creer"));
+        $submit = $this->_html->newFormInput(array("type" => "submit", "data-theme" => "e", "value" => "Créer", "class" => "validation"));
 
         $formContent = $name . $description . $importance . $dueDate . $status . $id_task_creator . $creationDate . $submit;
 
@@ -365,11 +360,12 @@ class UserInterface {
 
         $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $formCreate);
         $pageContent = $this->_header . $uiContent . $this->_footer;
-        $createTaskPage = $this->_html->newDiv(array("data-role" => "page"), $pageContent);
+        $createTaskPage = $this->_html->newDiv(array("data-role" => "page", "data-theme" => "c"), $pageContent);
 
         return $createTaskPage;
     }
 
+    //************************************************************************ EDIT TASK ***************************************************************/
     public function editTaskPage($taskId){
         $task = $this->_ajax->getTask($taskId);
         $task->due_date = $this->_helper->datePickerToTime($task->due_date, true);
@@ -380,7 +376,7 @@ class UserInterface {
         $arrayImportance = $this->_getTaskImportance();
         array_unshift($arrayImportance, "Choix importance");
         $choiceImportance = $this->_html->newFormOption(array("data-placeholder" => "true"), $arrayImportance);
-        $selectImportance = $this->_html->newFormSelect(array("name" => "importance", "id" => "selectEditImportance", "data-native-menu" => "false"), $choiceImportance);
+        $selectImportance = $this->_html->newFormSelect(array("name" => "importance", "id" => "selectEditImportance", "data-native-menu" => "false", "data-theme" => "c"), $choiceImportance);
         $importance = $this->_html->newDiv(array("class" => "ui-field-contain"), $selectImportance);
 
         $dueDate = $this->_html->newFormInput(array("type" => "text", "data-role" => "date", "value" => $task->due_date));
@@ -388,7 +384,7 @@ class UserInterface {
         $status = $this->_html->newFormInput(array("type" => "hidden", "name" => "status", "value" => $task->status));
         $idTaskCreator = $this->_html->newFormInput(array("type" => "hidden", "name" => "id_task_creator", "value" => $task->id_task_creator));
         $creationDate = $this->_html->newFormInput(array("type" => "hidden", "name" => "creation_date", "value" => time()));
-        $submit = $this->_html->newFormInput(array("type" => "submit", "value" => "Editer"));
+        $submit = $this->_html->newFormInput(array("type" => "submit", "value" => "Editer", "class" => "validation", "data-theme" => "e"));
 
         $formContent = $name . $description . $importance . $dueDate . $status . $idTaskCreator . $id . $creationDate . $submit;
 
@@ -397,7 +393,7 @@ class UserInterface {
 
         $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $formEdit);
         $pageContent = $this->_header . $uiContent . $this->_footer;
-        $editTaskPage = $this->_html->newDiv(array("data-role" => "page"), $pageContent);
+        $editTaskPage = $this->_html->newDiv(array("data-role" => "page", "data-theme" => "c"), $pageContent);
 
         return $editTaskPage;
     }
@@ -453,25 +449,34 @@ class UserInterface {
         );
 
         $filterImportanceOptions = $this->_html->newFormOption(array("data-placeholder" => "true"), $filterImportanceArray, 1);
-        $filterImportanceSelect = $this->_html->newFormSelect(array("name" => "filterImportance", "id" => "selectFilterImportance", "data-native-menu" => "false"), $filterImportanceOptions);
+        $filterImportanceSelect = $this->_html->newFormSelect(array("name" => "filterImportance",
+                                                                    "id" => "selectFilterImportance",
+                                                                    "data-theme" => "g",
+                                                                    "data-native-menu" => "false"),
+                                                                $filterImportanceOptions
+        );
         $filterImportance = $this->_html->newDiv(array("class" => "ui-field-contain"), $filterImportanceSelect);
 
         $filterChronologyOptions = $this->_html->newFormOption(array("data-placeholder" => "true"), $filterChronologyArray, 1);
-        $filterChronologySelect = $this->_html->newFormSelect(array("name" => "filterChronology", "id" => "selectFilterChronology", "data-native-menu" => "false"), $filterChronologyOptions);
+        $filterChronologySelect = $this->_html->newFormSelect(array("name" => "filterChronology",
+                                                                    "id" => "selectFilterChronology",
+                                                                    "data-theme" => "g",
+                                                                    "data-native-menu" => "false"),
+                                                              $filterChronologyOptions
+        );
         $filterChronology = $this->_html->newDiv(array("class" => "ui-field-contain"), $filterChronologySelect);
 
 
         //**************************************************STATUS FILTER FORM***************************************************
 
-        $filterStatusOption = $this->_html->newFormOption(array(), array("A faire", "Fait"));
-        $filterStatusSelect = $this->_html->newFormSelect(array("id" => "flip-select",
+        $filterStatusOption = $this->_html->newFormOption(array("data-theme" => "a", "data-placeholder" => "true"), array("KO", "OK"), 1);
+        $filterStatusSelect = $this->_html->newFormSelect(array("id" => "selectFilterStatus",
                                                                 "name" => "filterStatus",
+                                                                "data-theme" => "g",
                                                                 "data-role" => "flipswitch"),
                                                           $filterStatusOption
         );
         $formSelect = $filterImportance . $filterChronology . $filterStatusSelect;
-
-        //TODO : Ajouter un form switch pour résolu - non résolu avec pour name "filterStatus"
 
         $filterSubmit = $this->_html->newFormInput(array("type" => "submit", "data-icon" => "bullets" , "value" => "Filtrer"));
         $filterContent = $formSelect . $filterSubmit;
@@ -486,6 +491,7 @@ class UserInterface {
         $modelPanel = new ModelPanel();
         $modelPanel->dataDisplay = "reveal";
         $modelPanel->dataPosition = "left";
+        $modelPanel->theme = "f";
         $modelPanel->panelContent = $panelContent;
 
         $leftMenu = $this->getPanelMenu($modelPanel);
@@ -506,6 +512,7 @@ class UserInterface {
             </div><!-- page -->
         */
     }
+
     //************************************************************FOR MOBILE HELPER***********************************//
     /**
      * @param ModelPanel $modelPanel
@@ -514,6 +521,7 @@ class UserInterface {
     public function getPanelMenu(ModelPanel $modelPanel){
         $panel = $this->_html->newDiv(array("data-role" => "panel",
                                             "id" => "leftMenu",
+                                            "data-theme" => $modelPanel->theme,
                                             "data-position" => $modelPanel->dataPosition,
                                             "data-display" => $modelPanel->dataDisplay),
                                       $modelPanel->panelContent
@@ -525,7 +533,7 @@ class UserInterface {
     public function dialogBox($message, $idTag = null){
         $idTag = (!is_null($idTag))?$idTag:"dialogBox";
         $paragMessage = $this->_html->newP(array(), $message);
-        $popUp = $this->_html->newDiv(array("data-role" => "popup", "id" => $idTag), $paragMessage);
+        $popUp = $this->_html->newDiv(array("data-role" => "popup", "id" => $idTag, "data-theme" => "f"), $paragMessage);
 
         return $popUp;
         /*
@@ -563,7 +571,8 @@ class UserInterface {
         $listMenu = $this->_html->newUl(array("data-role" => "listview", "data-inset" => "true", "style" => "min-width:210px;"), $modelContextualMenu->liMenu);
         $contextualMenu = $this->_html->newDiv(array("data-role" => "popup",
                                                      "id" => $modelContextualMenu->idTag,
-                                                     "data-theme" => "b"),
+                                                     "data-overlay-theme" => $modelContextualMenu->theme,
+                                                     "data-theme" => $modelContextualMenu->theme),
                                                $listMenu
         );
 

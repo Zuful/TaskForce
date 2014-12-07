@@ -80,11 +80,15 @@ class ModelDoubleChoiceBox{
     public $subMessage;
     public $firstOption;
     public $secondOption;
+    public $windowTheme;
+    public $firstOptionTheme;
+    public $secondOptionTheme;
 }
 
 class ModelContextualMenu{
     public $idTag;
     public $liMenu;
+    public $theme;
 }
 
 class ModelAjaxLoadFiles{
@@ -96,6 +100,7 @@ class ModelPanel{
     public $dataPosition;
     public $dataDisplay;
     public $panelContent;
+    public $theme;
 }
 
 class ModelParameters{
