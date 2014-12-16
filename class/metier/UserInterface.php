@@ -63,9 +63,9 @@ class UserInterface {
         $this->_head .= $this->_html->newScriptTag(array("type" => "text/javascript", "src" => "js/jquery.mobile-1.4.5.min.js"));
 
         //********************************************************Header*****************************************************************
-        $linkHome = $this->_html->newA(array("href" => "index.php", "data-transition" => "turn", "data-icon" => "home"), "Home");
-        $linkAccount = $this->_html->newA(array("href" => "contacts.php", "data-transition" => "turn", "data-direction" => "reverse","data-icon" => "user"), "Contacts");
-        $linkSettings = $this->_html->newA(array("href" => "settings.php", "data-transition" => "turn", "data-direction" => "reverse","data-icon" => "gear"), "Settings");
+        $linkHome = $this->_html->newA(array("href" => "index.php", "data-transition" => "pop", "data-icon" => "home"), "Home");
+        $linkAccount = $this->_html->newA(array("href" => "contacts.php", "data-transition" => "pop", "data-direction" => "reverse","data-icon" => "user"), "Contacts");
+        $linkSettings = $this->_html->newA(array("href" => "settings.php", "data-transition" => "pop", "data-direction" => "reverse","data-icon" => "gear"), "Settings");
 
         $list = $this->_html->newLi(array(), array($linkHome, $linkAccount, $linkSettings));
         $nav = $this->_html->newUl(array(), $list);
@@ -142,9 +142,10 @@ class UserInterface {
 
             $btnNewTask = $this->_html->newButton(array("data-icon" => "plus", "data-theme" => "e"), "Nouvelle tache");
             $linkNewTask = $this->_html->newA(array("href" => $this->_createTaskPage,
-                                                    "data-transition" => "turn",
+                                                    "data-transition" => "pop",
                                                     "data-direction" => "reverse"),
                                               $btnNewTask);
+
             $ui = $linkNewTask . $leftMenuLink . $taskList;
 
             $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $ui);
@@ -179,17 +180,22 @@ class UserInterface {
             $linkContent = $img . $title . $basicInfos;
 
             $linkSeeTask = $this->_html->newA(array("href" => $this->_seeTaskPage . "?id=" . $task->id,
-                                                    "data-transition" => "turn",
+                                                    "data-transition" => "pop",
                                                     "data-direction" => "reverse"),
                                               $linkContent);
             //*******************************************Contextual Menu
             $liDivider = "Choisissez une action";
-            $linkEditTask = $this->_html->newA(array("href" => $this->_editTaskPage . "?id=" . $task->id, "data-transition" => "turn"), "Editer");
-            $linkDeleteTask = $this->_html->newA(array("href" => $this->indexPage . "?action=deleteTask&id=" . $task->id, "data-transition" => "turn"), "Supprimer");
-            $linkDoneTask = $this->_html->newA(array("href" => $this->indexPage . "?action=doneTask&id=" . $task->id, "data-transition" => "turn"), "Marquer comme fait");
+            $linkEditTask = $this->_html->newA(array("href" => $this->_editTaskPage . "?id=" . $task->id, "data-transition" => "pop"), "Editer");
+            $linkDeleteTask = $this->_html->newA(array("href" => "#contextualConfirmDelete" . $task->id,
+                                                       "data-rel" => "popup",
+                                                       "data-position-to" => "window",
+                                                       "data-transition" => "pop"),
+                                                "Supprimer"
+            );
+            $linkDoneTask = $this->_html->newA(array("href" => $this->indexPage . "?action=doneTask&id=" . $task->id, "data-transition" => "pop"), "Marquer comme fait");
 
             $liContent = array($liDivider, $linkEditTask, $linkDeleteTask, $linkDoneTask);
-            $liMenu = $this->_html->newLi(array("data-role" => "list-divider"), $liContent, 1);
+            $liMenu = $this->_html->newLi(array(), $liContent);
             $modelContextualMenu = new ModelContextualMenu();
             $modelContextualMenu->liMenu = $liMenu;
             $modelContextualMenu->idTag = "contextualMenu_" . $task->id;
@@ -197,19 +203,18 @@ class UserInterface {
 
             $contextualMenu = $this->contextualMenu($modelContextualMenu);
             $linkTaskContextualMenu = $this->_html->newA(array("href" => "#" . $modelContextualMenu->idTag,
-                                                     "data-split-icon" => "gear",
                                                      "data-rel" => "popup",
-                                                     "data-transition" => "turn",
-                                                     "class" => "ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a"),
+                                                     "data-position-to" => "window",
+                                                     "data-transition" => "pop"),
                                                "Options");
 
-            $liContent = $linkSeeTask . $linkTaskContextualMenu . $contextualMenu;
+            $liContent = $linkSeeTask . $linkTaskContextualMenu  . $contextualMenu;
 
             $list[] =  $liContent;
         }
 
         $lis = $this->_html->newLi(array(), $list);
-        $ul = $this->_html->newUl(array("data-role" => "listview", "data-split-icon" => "check", "data-theme" => "g","data-inset" => "true"), $lis);
+        $ul = $this->_html->newUl(array("data-role" => "listview", "data-split-icon" => "gear", "data-split-theme" => "a", "data-theme" => "g","data-inset" => "true"), $lis);
 
         return $ul;
     }
@@ -257,12 +262,12 @@ class UserInterface {
         $fieldContain = $this->_html->newDiv(array("data-role" => "fieldcontain"), $formContent);
         $fieldset = $this->_html->newFieldset(array(), $fieldContain);
 
-        $formProps = array("action" => $this->indexPage, "method" => "post", "id" => "connexion", "data-transition" => "turn", "data-direction" => "reverse");
+        $formProps = array("action" => $this->indexPage, "method" => "post", "id" => "connexion", "data-transition" => "pop", "data-direction" => "reverse");
         $signInForm = $this->_html->newForm($formProps, $fieldset);
         $title = $this->_html->newH(array(), 1, "Connexion");
 
         $signUpBtn = $this->_html->newButton(array("data-theme" => ""), "Créer un compte");
-        $signUpLink = $this->_html->newA(array("href" => $this->_signUpPage, "data-transition" => "turn"), $signUpBtn);
+        $signUpLink = $this->_html->newA(array("href" => $this->_signUpPage, "data-transition" => "pop"), $signUpBtn);
 
         $uiContent = $title . "Connectez vous et accédez au service<br><br>" . $signInForm . $signUpLink;
         $uiContent = $this->_html->newDiv(array("data-role" => "ui-content"), $uiContent);
@@ -286,7 +291,7 @@ class UserInterface {
 
         $editBtn = $this->_html->newButton(array("data-icon" => "edit", "data-theme" => "d", "class" => "edit"), "Editer");
         $editLink = $this->_html->newA(array("href" => $this->_editTaskPage . "?id=" . $task->id,
-                                             "data-transition" => "turn",
+                                             "data-transition" => "pop",
                                              "data-direction" => "reverse"),
                                        $editBtn
         );
@@ -302,7 +307,7 @@ class UserInterface {
 
         $doneBtn = $this->_html->newButton(array("data-icon" => "check", "data-theme" => "e", "class" => "validation"), "Fait");
         $doneLink = $this->_html->newA(array("href" => $this->indexPage . "?action=doneTask&id=" . $task->id,
-                                             "data-transition" => "turn",
+                                             "data-transition" => "pop",
                                              "data-direction" => "reverse"),
                                       $doneBtn
         );
@@ -317,10 +322,9 @@ class UserInterface {
                 "data-rel" => "back"),
             "Annuler"
         );
-        $modelDoubleChoiceBox->secondOption = $this->_html->newA(array("href" => $this->indexPage ."?action=deleteTask?id=" . $task->id,
-                "data-transition" => "turn",
-                "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b",
-                "data-rel" => "back"),
+        $modelDoubleChoiceBox->secondOption = $this->_html->newA(array("href" => $this->indexPage ."?action=deleteTask&id=" . $task->id,
+                "data-transition" => "pop",
+                "class" => "ui-btn ui-cornet-all ui-shadow ui-btn-inline ui-btn-b"),
             "Confirmer"
         );
 
@@ -354,7 +358,7 @@ class UserInterface {
 
         $formContent = $name . $description . $importance . $dueDate . $status . $id_task_creator . $creationDate . $submit;
 
-        $formProps = array("action" => $this->indexPage . "?action=createTask", "method" => "post", "id" => "createTask", "data-transition" => "turn");
+        $formProps = array("action" => $this->indexPage . "?action=createTask", "method" => "post", "id" => "createTask", "data-transition" => "pop");
         $formCreate = $this->_html->newForm($formProps, $formContent);
 
         $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $formCreate);
@@ -387,7 +391,7 @@ class UserInterface {
 
         $formContent = $name . $description . $importance . $dueDate . $status . $idTaskCreator . $id . $creationDate . $submit;
 
-        $formProps = array("action" => $this->indexPage  ."?action=editTask", "method" => "post", "id" => "editTask", "data-transition" => "turn");
+        $formProps = array("action" => $this->indexPage  ."?action=editTask", "method" => "post", "id" => "editTask", "data-transition" => "pop");
         $formEdit = $this->_html->newForm($formProps, $formContent);
 
         $uiContent = $this->_html->newDiv(array("data-role" => "main", "class" => "ui-content"), $formEdit);
