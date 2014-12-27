@@ -95,8 +95,20 @@ class UserInterface {
     }
 
     public function getTaskHead(){
-
         return $this->_head;
+    }
+
+    private function _isCurrentPage($page){
+        if(strpos($_SERVER["PHP_SELF"], $page) !== false){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    private function _getTopMenu(array ){
+
     }
 
     /**
@@ -136,7 +148,7 @@ class UserInterface {
         if(is_null($this->_home)){
             $leftMenu = $this->getLeftMenu();
 
-            $leftMenuBtn = $this->_html->newButton(array("data-icon" => "arrow-r"), "Options");
+            $leftMenuBtn = $this->_html->newButton(array("data-icon" => "arrow-r", "data-theme" => "b"), "Options");
             $leftMenuLink = $this->_html->newA(array("href" => "#leftMenu"), $leftMenuBtn);
             $taskList = $this->getTaskList();
 
@@ -256,7 +268,7 @@ class UserInterface {
         $hiddenPost = $this->_html->newFormInput(array("type" => "hidden", "name" => "posted", "value" => 1));
 
         $hiddenTime = $this->_html->newFormInput(array("type" => "hidden", "name" => "last_connexion", "value" => time()));
-        $submit = $this->_html->newFormInput(array("type" => "submit", "value" => "Se connecter"));
+        $submit = $this->_html->newFormInput(array("type" => "submit", "data-theme" => "e", "value" => "Se connecter"));
         $formContent = $identifiant . $password . $hiddenTime . $hiddenPost . $submit;
 
         $fieldContain = $this->_html->newDiv(array("data-role" => "fieldcontain"), $formContent);
@@ -266,7 +278,7 @@ class UserInterface {
         $signInForm = $this->_html->newForm($formProps, $fieldset);
         $title = $this->_html->newH(array(), 1, "Connexion");
 
-        $signUpBtn = $this->_html->newButton(array("data-theme" => ""), "Créer un compte");
+        $signUpBtn = $this->_html->newButton(array("data-theme" => "i"), "Créer un compte");
         $signUpLink = $this->_html->newA(array("href" => $this->_signUpPage, "data-transition" => "pop"), $signUpBtn);
 
         $uiContent = $title . "Connectez vous et accédez au service<br><br>" . $signInForm . $signUpLink;
